@@ -84,17 +84,23 @@ ensure_receipts_sheet()
 
 @st.cache_data(ttl=10)
 def load_data():
-    student_ws = spreadsheet.worksheet("Student Master")
-    fee_ws = spreadsheet.worksheet("Fee Tracker")
-    marks_ws = spreadsheet.worksheet("Marks")
+    spreadsheet = get_spreadsheet()
 
-    student_rows = student_ws.get_all_values()
-    fee_rows = fee_ws.get_all_values()
-    marks_rows = marks_ws.get_all_values()
+if spreadsheet is None:
+    st.error("Spreadsheet connection failed")
+    st.stop()
+    
+student_ws = spreadsheet.worksheet("Student Master")
+fee_ws = spreadsheet.worksheet("Fee Tracker")
+marks_ws = spreadsheet.worksheet("Marks")
 
-    student_df = pd.DataFrame(student_rows[1:], columns=student_rows[0]) if len(student_rows) > 1 else pd.DataFrame(columns=student_rows[0] if student_rows else [])
-    fee_df = pd.DataFrame(fee_rows[1:], columns=fee_rows[0]) if len(fee_rows) > 1 else pd.DataFrame(columns=fee_rows[0] if fee_rows else [])
-    marks_df = pd.DataFrame(marks_rows[1:], columns=marks_rows[0]) if len(marks_rows) > 1 else pd.DataFrame(columns=marks_rows[0] if marks_rows else [])
+student_rows = student_ws.get_all_values()
+fee_rows = fee_ws.get_all_values()
+marks_rows = marks_ws.get_all_values()
+
+student_df = pd.DataFrame(student_rows[1:], columns=student_rows[0]) if len(student_rows) > 1 else pd.DataFrame(columns=student_rows[0] if student_rows else [])
+fee_df = pd.DataFrame(fee_rows[1:], columns=fee_rows[0]) if len(fee_rows) > 1 else pd.DataFrame(columns=fee_rows[0] if fee_rows else [])
+marks_df = pd.DataFrame(marks_rows[1:], columns=marks_rows[0]) if len(marks_rows) > 1 else pd.DataFrame(columns=marks_rows[0] if marks_rows else [])
 
     if "Monthly Fee" in fee_df.columns:
         fee_df["Monthly Fee"] = pd.to_numeric(
