@@ -4,6 +4,7 @@ import gspread
 import builtins
 import io
 from datetime import datetime
+from google.oauth2 import service_account
 from reportlab.lib.pagesizes import letter
 from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
 from reportlab.lib.styles import getSampleStyleSheet
@@ -26,7 +27,6 @@ if "logged_in" not in st.session_state:
 # GOOGLE SHEET CONNECTION
 
 @st.cache_resource
-from google.oauth2 import service_account
 
 def get_spreadsheet():
     try:
