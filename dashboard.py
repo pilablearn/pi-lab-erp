@@ -26,29 +26,30 @@ if "logged_in" not in st.session_state:
 # GOOGLE SHEET CONNECTION
 
 @st.cache_resource
+from google.oauth2 import service_account
+
 def get_spreadsheet():
     try:
         if hasattr(builtins, "spreadsheet"):
             return builtins.spreadsheet
 
-        from google.auth import default
-        creds, _ = default()
+        creds = service_account.Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"],
+            scopes=[
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/drive"
+            ]
+        )
+
         gc = gspread.authorize(creds)
-        return gc.open_by_key("15azhC-cUcVpQbiPiMmlab8RxwM3zfUVdaq4NqNXM9ok")
+        builtins.spreadsheet = gc.open_by_key(
+            "15azhC-cUcVpQbiPiMmlab8RxwM3zfUVdaq4NqNXM9ok"
+        )
+        return builtins.spreadsheet
+
     except Exception as e:
-        # FIX #6: surface the real error instead of swallowing it
         st.session_state["_sheet_conn_error"] = str(e)
         return None
-
-spreadsheet = get_spreadsheet()
-
-if spreadsheet is None:
-    st.error("Google Sheet connection failed")
-    err = st.session_state.get("_sheet_conn_error")
-    if err:
-        with st.expander("Connection error details"):
-            st.code(err)
-    st.stop()
 
 # AUTO CREATE RECEIPTS SHEET
 
