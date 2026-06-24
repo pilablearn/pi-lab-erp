@@ -54,15 +54,19 @@ def get_spreadsheet():
 # AUTO CREATE RECEIPTS SHEET
 
 def ensure_receipts_sheet():
-    global spreadsheet
     spreadsheet = get_spreadsheet()
+
+    if spreadsheet is None:
+        st.error("Spreadsheet connection failed")
+        return None
 
     try:
         ws = spreadsheet.worksheet("Receipts")
         return ws
-    except:
+
+    except Exception:
         ws = spreadsheet.add_worksheet("Receipts", rows=1000, cols=20)
-        return ws
+
         ws.append_row([
             "Receipt No",
             "Date",
@@ -73,6 +77,7 @@ def ensure_receipts_sheet():
             "Payment Mode"
         ])
 
+        return ws
 ensure_receipts_sheet()
 
 # LOAD DATA
