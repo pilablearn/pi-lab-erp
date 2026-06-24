@@ -54,10 +54,15 @@ def get_spreadsheet():
 # AUTO CREATE RECEIPTS SHEET
 
 def ensure_receipts_sheet():
+    global spreadsheet
+    spreadsheet = get_spreadsheet()
+
     try:
-        spreadsheet.worksheet("Receipts")
-    except Exception:
+        ws = spreadsheet.worksheet("Receipts")
+        return ws
+    except:
         ws = spreadsheet.add_worksheet("Receipts", rows=1000, cols=20)
+        return ws
         ws.append_row([
             "Receipt No",
             "Date",
