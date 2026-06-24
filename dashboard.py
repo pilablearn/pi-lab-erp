@@ -61,7 +61,7 @@ def ensure_receipts_sheet():
         return None
 
     try:
-        ws = spreadsheet.worksheet("Receipts")
+        ws = spreadsheet = get_spreadsheet("Receipts")
         return ws
 
     except Exception:
@@ -90,9 +90,9 @@ if spreadsheet is None:
     st.error("Spreadsheet connection failed")
     st.stop()
     
-student_ws = spreadsheet.worksheet("Student Master")
-fee_ws = spreadsheet.worksheet("Fee Tracker")
-marks_ws = spreadsheet.worksheet("Marks")
+student_ws = spreadsheet = get_spreadsheet("Student Master")
+fee_ws = spreadsheet = get_spreadsheet("Fee Tracker")
+marks_ws = spreadsheet = get_spreadsheet("Marks")
 
 student_rows = student_ws.get_all_values()
 fee_rows = fee_ws.get_all_values()
@@ -119,7 +119,7 @@ student_df, fee_df, marks_df = load_data()
 # LOGIN
 
 def verify_login(username, password):
-    cred_ws = spreadsheet.worksheet("Credentials")
+    cred_ws = spreadsheet = get_spreadsheet("Credentials")
     rows = cred_ws.get_all_values()
 
     headers = rows[0]
@@ -237,7 +237,7 @@ elif menu == "Students":
             elif not student_name.strip():
                 st.error("Student Name cannot be empty.")
             else:
-                student_ws = spreadsheet.worksheet("Student Master")
+                student_ws = spreadsheet = get_spreadsheet("Student Master")
                 rows = student_ws.get_all_values()
 
                 # FIX #1: robust ID generation, won't crash on blank/malformed last row
@@ -267,7 +267,7 @@ elif menu == "Students":
                     ""
                 ])
 
-                fee_ws = spreadsheet.worksheet("Fee Tracker")
+                fee_ws = spreadsheet = get_spreadsheet("Fee Tracker")
                 fee_ws.append_row([
                     new_id,
                     student_name,
@@ -320,7 +320,7 @@ elif menu == "Fees":
         payment_date = st.date_input("Payment Date")
 
         if st.button("Submit Payment"):
-            fee_ws = spreadsheet.worksheet("Fee Tracker")
+            fee_ws = spreadsheet = get_spreadsheet("Fee Tracker")
             rows = fee_ws.get_all_values()
             headers = rows[0]
 
@@ -355,7 +355,7 @@ elif menu == "Fees":
                         str(payment_date)
                     )
 
-                    receipt_ws = spreadsheet.worksheet("Receipts")
+                    receipt_ws = spreadsheet = get_spreadsheet("Receipts")
                     receipt_rows = receipt_ws.get_all_values()
 
                     receipt_no = f"RCP-{datetime.now().year}-{len(receipt_rows):05d}"
@@ -378,7 +378,7 @@ elif menu == "Fees":
 elif menu == "Attendance":
     st.title("Attendance")
 
-    attendance_ws = spreadsheet.worksheet("Attendance")
+    attendance_ws = spreadsheet = get_spreadsheet("Attendance")
     rows = attendance_ws.get_all_values()
 
     today_str = datetime.now().strftime("%Y-%m-%d")
@@ -515,7 +515,7 @@ elif menu == "Academics":
             if marks_obtained > total_marks:
                 st.error("Marks Obtained cannot exceed Total Marks.")
             else:
-                marks_ws = spreadsheet.worksheet("Marks")
+                marks_ws = spreadsheet = get_spreadsheet("Marks")
 
                 student_row = student_df[
                     student_df["Student Name"] == selected_student
