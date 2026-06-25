@@ -10,7 +10,8 @@ from reportlab.platypus import (
     SimpleDocTemplate,
     Paragraph,
     Spacer,
-    Table
+    Table,
+    Image
 )
 from reportlab.lib.styles import getSampleStyleSheet
 from reportlab.lib.pagesizes import A4
@@ -172,6 +173,15 @@ def generate_receipt_pdf(
     doc = SimpleDocTemplate(filename, pagesize=A4)
     styles = getSampleStyleSheet()
     story = []
+
+logo_path = "logo.png"
+
+try:
+    logo = Image(logo_path, width=80, height=80)
+    story.append(logo)
+    story.append(Spacer(1, 10))
+except:
+    pass
 
      # Heading
     story.append(Paragraph("PI LAB LEARNING", styles["Title"]))
