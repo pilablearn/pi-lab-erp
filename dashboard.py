@@ -525,7 +525,7 @@ if st.button("Mark Attendance"):
 
     attendance_ws.clear()
     attendance_ws.update(
-        [attendance_df.columns.tolist()]
+        [attendance_df.columns.tolist()] +
         attendance_df.values.tolist()
     )
 
