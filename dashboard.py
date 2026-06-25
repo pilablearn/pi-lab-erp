@@ -3,6 +3,36 @@ import pandas as pd
 import gspread
 import builtins
 import io
+st.markdown("""
+<style>
+.main {
+    background-color: #f5f7fb;
+}
+
+.metric-card {
+    background: white;
+    padding: 20px;
+    border-radius: 18px;
+    box-shadow: 0px 4px 16px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+}
+
+.big-number {
+    font-size: 40px;
+    font-weight: 700;
+    color: #111827;
+}
+
+.label {
+    color: #6b7280;
+    font-size: 18px;
+}
+
+.sidebar .sidebar-content {
+    background: linear-gradient(180deg,#ffffff,#f5f7fb);
+}
+</style>
+""", unsafe_allow_html=True)
 from datetime import datetime
 from google.oauth2 import service_account
 from reportlab.lib.pagesizes import letter
@@ -197,8 +227,25 @@ if menu == "Dashboard":
     c1, c2, c3 = st.columns(3)
 
     with c1:
-        st.metric("Total Students", len(student_df))
+        def metric_card(title, value):
+            st.markdown(f"""
+            <div class="metric-card">
+                <div class="label">{title}</div>
+                <div class="big-number">{value}</div>
+            </div>
+            """, unsafe_allow_html=True)
 
+    c1,c2,c3 = st.columns(3
+
+    with c1:
+        metric_card("🎓 Total Students", 17)
+
+    with c2:
+        metric_card("👨‍🎓 Active Students", 17)
+
+    with c3:
+        metric_card("💰 Outstanding", "₹151,500")
+        
     with c2:
         active_count = 0
         if not student_df.empty and "Status" in student_df.columns:
