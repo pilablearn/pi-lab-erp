@@ -1,5 +1,6 @@
 import streamlit as st
 import pandas as pd
+import plotly.express as px
 import gspread
 import builtins
 import io
@@ -223,8 +224,17 @@ if st.sidebar.button("Logout"):
 # DASHBOARD
 # -----------------------------
 if menu == "Dashboard":
-    st.title("Dashboard")
+    st.markdown("<h1 style='font-size:48px;'>Dashboard</h1>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    chart_df = pd.DataFrame({
+    "Month":["Jun","Jul","Aug","Sep"]
+    "Collection":[39000,49000,52000,47000]
+    })
 
+    fig = px.bar(chart_df, x="Month", y="Collection", title="Monthly Fee Collection")
+    st.plotly_chart(fig, use_container_width=True)
+    
     c1, c2, c3 = st.columns(3)
 
     with c1:
