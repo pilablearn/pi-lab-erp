@@ -201,9 +201,9 @@ if not st.session_state.logged_in:
 # -----------------------------
 # SIDEBAR
 # -----------------------------
-st.sidebar.title("⚡ PI LAB ERP")
+st.sidebar.title("PI LAB ERP")
 
-menu = st.sidebar.radio(
+menu = st.sidebar.image("logo.png", width=140)
     "Menu",
     [
         "Dashboard",
