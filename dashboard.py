@@ -207,20 +207,12 @@ st.sidebar.image("logo.png", width=140)
 menu = st.sidebar.radio(
     "Menu",
     [
-        "Dashboard"
+        "Dashboard",
         "Students",
         "Fees",
         "Fees",
         "Academics"
-    ],
-    icons=[
-        "house",
-        "people",
-        "cash",
-        "calendar-check",
-        "book"
-    ],
-    default_index=0
+    ]
 )
 
 if st.sidebar.button("Logout"):
