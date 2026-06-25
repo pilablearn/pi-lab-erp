@@ -228,11 +228,17 @@ if menu == "Dashboard":
     st.markdown("<br>", unsafe_allow_html=True)
     
     chart_df = pd.DataFrame({
-    "Month":["Jun","Jul","Aug","Sep"]
-    "Collection":[39000,49000,52000,47000]
+        "Month": ["Jun", "Jul", "Aug", "Sep"],
+        "Collection": [39000, 49000, 52000, 47000]
     })
 
-    fig = px.bar(chart_df, x="Month", y="Collection", title="Monthly Fee Collection")
+    fig = px.bar(
+        chart_df,
+        x="Month",
+        y="Collection",
+        title="Monthly Fee Collection"
+    )
+
     st.plotly_chart(fig, use_container_width=True)
     
     c1, c2, c3 = st.columns(3)
