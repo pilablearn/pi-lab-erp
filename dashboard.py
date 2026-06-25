@@ -244,7 +244,7 @@ if menu == "Dashboard":
             </div>
             """, unsafe_allow_html=True)
 
-    c1,c2,c3 = st.columns(3
+    c1,c2,c3 = st.columns(3)
 
     with c1:
         metric_card("🎓 Total Students", 17)
