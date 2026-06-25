@@ -211,7 +211,7 @@ menu = st.sidebar.radio(
         "Dashboard",
         "Students",
         "Fees",
-        "Fees",
+        "Attendance",
         "Academics"
     ]
 )
