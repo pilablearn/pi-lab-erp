@@ -489,7 +489,7 @@ elif menu == "Fees":
                 
                 parent_mobile = (
                     parent_mobile
-                    .replace(".0", ""
+                    .replace(".0", "")
                     .replace("+", "")
                     .replace(" ", "")
                 )
