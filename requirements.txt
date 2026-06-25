@@ -4,3 +4,5 @@ gspread
 reportlab
 google-auth
 google-auth-oauthlib
+plotly
+import plotly.express as px
