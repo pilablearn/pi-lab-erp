@@ -102,16 +102,16 @@ def load_data():
     fee_df = pd.DataFrame(fee_rows[1:], columns=fee_rows[0]) if len(fee_rows) > 1 else pd.DataFrame()
     marks_df = pd.DataFrame(marks_rows[1:], columns=marks_rows[0]) if len(marks_rows) > 1 else pd.DataFrame()
 
-if "Monthly Fee" in fee_df.columns:
-    fee_df["Monthly Fee"] = pd.to_numeric(
-        fee_df["Monthly Fee"], errors="coerce"
-    ).fillna(0)
+    if "Monthly Fee" in fee_df.columns:
+        fee_df["Monthly Fee"] = pd.to_numeric(
+            fee_df["Monthly Fee"], errors="coerce"
+        ).fillna(0)
 
-if "Outstanding Amount" in fee_df.columns:
-    fee_df["Outstanding Amount"] = pd.to_numeric(
-        fee_df["Outstanding Amount"], errors="coerce"
-    ).fillna(0)
-return student_df, fee_df, marks_df
+     if "Outstanding Amount" in fee_df.columns:
+        fee_df["Outstanding Amount"] = pd.to_numeric(
+            fee_df["Outstanding Amount"], errors="coerce"
+        ).fillna(0)
+     return student_df, fee_df, marks_df
 
 # LOGIN
 
