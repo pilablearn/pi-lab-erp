@@ -97,9 +97,13 @@ def ensure_receipts_sheet():
     spreadsheet = get_spreadsheet()
 
     try:
-        spreadsheet.worksheet("Receipts")
+        ws = spreadsheet.worksheet("Receipts")
     except:
-        ws = spreadsheet.add_worksheet("Receipts", rows=1000, cols=20)
+        ws = spreadsheet.add_worksheet(
+            title="Receipts",
+            rows=1000
+            cols=20
+        )
 
         ws.append_row([
             "Receipt No",
@@ -110,8 +114,9 @@ def ensure_receipts_sheet():
             "Amount Paid",
             "Payment Mode"
         ])
+        return ws
 
-ensure_receipts_sheet()
+# ensure_receipts_sheet()
 
 # -----------------------------
 # LOAD DATA
