@@ -174,14 +174,14 @@ def generate_receipt_pdf(
     styles = getSampleStyleSheet()
     story = []
 
-logo_path = "logo.png"
+    logo_path = "logo.png"
 
-try:
-    logo = Image(logo_path, width=80, height=80)
-    story.append(logo)
-    story.append(Spacer(1, 10))
-except:
-    pass
+    try:
+        logo = Image(logo_path, width=80, height=80)
+        story.append(logo)
+        story.append(Spacer(1, 10))
+    except:
+        pass
 
      # Heading
     story.append(Paragraph("PI LAB LEARNING", styles["Title"]))
