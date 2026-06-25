@@ -532,7 +532,7 @@ elif menu == "Fees":
                 st.success(f"Payment Recorded | Receipt {receipt_no}")
 
                 pdf_file = generate_receipt_pdf(
-                    receipt_no
+                    receipt_no,
                     payment_date,
                     student_id,
                     student_name,
