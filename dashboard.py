@@ -461,73 +461,78 @@ elif menu == "Fees":
 # -----------------------------
 elif menu == "Attendance":
     st.title("Attendance")
-
+    
     attendance_ws = get_sheet("Attendance")
-    rows = attendance_ws.get_all_values()
-
     today_str = datetime.now().strftime("%Y-%m-%d")
 
-    active_students_df = student_df[
-        student_df["Status"].str.strip() == "Active"
-    ][["Student ID", "Student Name", "Grade"]].copy()
+# Active students from Student Master
+active_students_df = student_df[
+    student_df["Status"].astype(str).str.strip() == "Active"
+][["Student ID", "Student Name", "Grade"]].copy()
 
-    active_students = active_students_df["Student Name"].tolist()
-   
-    if not rows:
-        attendance_df = active_students_df.copy()
-        attendance_df[today_str] = "Absent"
-    else:
-        attendance_df = pd.DataFrame(
-            rows[1:],
-            columns=rows[0]
+# Load attendance sheet
+rows = attendance_ws.get_all_values()
+
+if len(rows) <= 1:
+    attendance_df = active_students_df.copy()
+else:
+    attendance_df = pd.DataFrame(rows[1:], columns=rows[0])
+
+# Remove duplicates
+if not attendance_df.empty:
+    attendance_df = attendance_df.drop_duplicates(
+        subset=["Student ID"],
+        keep="last"
         )
 
-        if today_str not in attendance_df.columns:
-            attendance_df[today_str] = "Absent"
+# Sync new admissions
+existing_ids = []
+if not attendance_df.empty and "Student ID" in attendance_df.columns:
+    existing_ids = attendance_df["Student ID"].tolist()
 
-    selected_student = st.selectbox(
-        "Student",
-        sorted(active_students)
-    )
-
-    status = st.selectbox(
-        "Status",
-        ["Present", "Absent"]
-    )
-
-    if st.button("Mark Attendance"):
-        if selected_student in attendance_df["Student Name"].values:
-            attendance_df.loc[
-                attendance_df["Student Name"] == selected_student,
-                today_str
-            ] = status
-    else:
-        student_row = active_students_df[
-        active_students_df["Student Name"] == selected_student
-        ].iloc[0]
-
-        new_row = {col: "Absent" for col in attendance_df.columns}
-        new_row["Student ID"] = student_row["Student ID"]
-        new_row["Student Name"] = student_row["Student Name"]
-        new_row["Grade"] = student_row["Grade"]
-        new_row[today_str] = status
-        
+for _, student in active_students_df.iterrows():
+    if student["Student ID"] not in existing_ids:
+        new_row = pd.DataFrame([{
+            "Student ID": student["Student ID"],
+            "Student Name": student["Student Name"],
+            "Grade": student["Grade"]
+        }])
         attendance_df = pd.concat(
-            [attendance_df, pd.DataFrame([new_row])],
+            [attendance_df, new_row],
             ignore_index=True
-        )
+         )
 
-        attendance_ws.clear()
-        attendance_ws.update(
-            [attendance_df.columns.tolist()] +
-            attendance_df.values.tolist()
-        )
+# Create today column if missing
+if today_str not in attendance_df.columns:
+    attendance_df[today_str] = "Absent"
 
-        st.success("Attendance Updated")
-        st.rerun()
+selected_student = st.selectbox(
+    "Student",
+    sorted(attendance_df["Student Name"].tolist())
+)
 
-    st.dataframe(attendance_df, use_container_width=True)
+status = st.selectbox(
+    "Status",
+    ["Present", "Absent"]
+)
 
+if st.button("Mark Attendance"):
+    idx = attendance_df.index[
+        attendance_df["Student Name"] == selected_student
+    ][0]
+    
+    attendance_df.loc[idx, today_str] = statu
+
+    attendance_ws.clear()
+    attendance_ws.update(
+        [attendance_df.columns.tolist()]
+        attendance_df.values.tolist()
+    )
+
+    st.success("Attendance Updated")
+    st.rerun()
+
+st.dataframe(attendance_df, use_container_width=True)
 # -----------------------------
 # ACADEMICS MODULE
 # -----------------------------
