@@ -5,6 +5,15 @@ import gspread
 import builtins
 import io
 import urllib.parse
+
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table
+)
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import A4
 st.markdown("""
 <style>
 .main {
@@ -149,6 +158,49 @@ Pi Lab Learning
     encoded = urllib.parse.quote(message)
     return f"https://wa.me/{parent_mobile}?text={encoded}"
 
+def generate_receipt_pdf(
+    receipt_no,
+    payment_date,
+    student_id,
+    student_name,
+    payment_month,
+    amount_paid,
+    payment_mode
+)
+    filename = f"receipt_{receipt_no}.pdf"
+
+    doc = SimpleDocTemplate(filename, pagesize=A4)
+    styles = getSampleStyleSheet()
+    story = []
+
+     # Heading
+    story.append(Paragraph("PI LAB LEARNING", styles["Title"]))
+    story.append(Spacer(1, 15))
+    story.append(Paragraph("PAYMENT RECEIPT", styles["Heading1"]))
+    story.append(Spacer(1, 20))
+
+    # Receipt data table
+    data = [
+        ["Receipt No", receipt_no],
+        ["Payment Date", str(payment_date)],
+        ["Student ID", student_id],
+        ["Student Name", student_name],
+        ["Fee Month", payment_month],
+        ["Amount Paid", f"Rs. {amount_paid}"],
+        ["Payment Mode", payment_mode]
+    ]
+    
+    table = Table(data, colWidths=[150, 250])
+    story.append(table)
+
+    story.append(Spacer(1, 30))
+    story.append(Paragraph("Thank you for your payment.", styles["Normal"]))
+    story.append(Spacer(1, 20))
+    story.append(Paragraph("Pi Lab Learning", styles["Normal"]))
+
+    doc.build(story)
+
+    return filename
 # -----------------------------
 # LOAD DATA
 # -----------------------------
@@ -478,7 +530,25 @@ elif menu == "Fees":
                 ])
 
                 st.success(f"Payment Recorded | Receipt {receipt_no}")
-                
+
+                pdf_file = generate_receipt_pdf(
+                    receipt_no
+                    payment_date,
+                    student_id,
+                    student_name,
+                    payment_month,
+                    amount_paid,
+                    payment_mode
+                )
+                    
+                with open(pdf_file, "rb") as file:
+                    st.download_button(
+                        label="Download Receipt PDF",
+                        data=file,
+                        file_name=pdf_file,
+                        mime="application/pdf"
+                    )
+                    
                 student_row = student_df[
                     student_df["Student Name"] == student_name
                 ]
