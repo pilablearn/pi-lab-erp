@@ -456,16 +456,14 @@ elif menu == "Attendance":
 
     today_str = datetime.now().strftime("%Y-%m-%d")
 
-    active_students = []
-    if not student_df.empty:
-        active_students = student_df[
-            student_df["Status"].str.strip() == "Active"
-        ]["Student Name"].tolist()
+    active_students_df = student_df[
+        student_df["Status"].str.strip() == "Active"
+    ][["Student ID", "Student Name", "Grade"]].copy()
 
+    active_students = active_students_df["Student Name"].tolist()
+   
     if not rows:
-        attendance_df = pd.DataFrame(
-            {"Student Name": active_students}
-        )
+        attendance_df = active_students_df.copy()
         attendance_df[today_str] = "Absent"
     else:
         attendance_df = pd.DataFrame(
@@ -492,14 +490,21 @@ elif menu == "Attendance":
                 attendance_df["Student Name"] == selected_student,
                 today_str
             ] = status
-        else:
-            new_row = {col: "Absent" for col in attendance_df.columns}
-            new_row["Student Name"] = selected_student
-            new_row[today_str] = status
-            attendance_df = pd.concat(
-                [attendance_df, pd.DataFrame([new_row])],
-                ignore_index=True
-            )
+    else:
+        student_row = active_students_df[
+        active_students_df["Student Name"] == selected_student
+        ].iloc[0]
+
+        new_row = {col: "Absent" for col in attendance_df.columns}
+        new_row["Student ID"] = student_row["Student ID"]
+        new_row["Student Name"] = student_row["Student Name"]
+        new_row["Grade"] = student_row["Grade"]
+        new_row[today_str] = status
+        
+        attendance_df = pd.concat(
+            [attendance_df, pd.DataFrame([new_row])],
+            ignore_index=True
+        )
 
         attendance_ws.clear()
         attendance_ws.update(
