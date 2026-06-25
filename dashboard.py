@@ -88,8 +88,13 @@ def get_spreadsheet():
 
 def get_sheet(sheet_name):
     spreadsheet = get_spreadsheet()
-    return spreadsheet.worksheet(sheet_name)
 
+    try:
+        return spreadsheet.worksheet(sheet_name)
+    except Exception as e:
+        st.error(f"Sheet not found: {sheet_name}")
+        st.stop()
+    
 # -----------------------------
 # ENSURE RECEIPTS SHEET
 # -----------------------------
