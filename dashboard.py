@@ -122,8 +122,32 @@ def ensure_receipts_sheet():
             "Payment Mode"
         ])
         return ws
+def create_whatsapp_link(
+    parent_mobile,
+    student_name,
+    payment_month,
+    amount_paid,
+    receipt_no
+):
+    message = f"""
+Dear Parent,
 
-# ensure_receipts_sheet()
+We have received the fee payment successfully.
+
+Student: {student_name}
+Fee Month: {payment_month}
+Amount Paid: ₹{amount_paid}
+Receipt No: {receipt_no}
+
+Please find the receipt attached.
+
+Regards,
+Pi Lab Learning
+8123417618
+"""
+
+    encoded = urllib.parse.quote(message)
+    return f"https://wa.me/{parent_mobile}?text={encoded}"
 
 # -----------------------------
 # LOAD DATA
@@ -371,32 +395,7 @@ elif menu == "Students":
             st.success(f"Admission Added: {student_id}")
             st.cache_data.clear()
             st.rerun()
-def create_whatsapp_link(
-    parent_mobile,
-    student_name,
-    payment_month,
-    amount_paid,
-    receipt_no
-):
-    message = f"""
-Dear Parent,
 
-We have received the fee payment successfully.
-
-Student: {student_name}
-Fee Month: {payment_month}
-Amount Paid: ₹{amount_paid}
-Receipt No: {receipt_no}
-
-Please find the receipt attached.
-
-Regards,
-Pi Lab Learning
-8123417618
-"""
-
-    encoded = urllib.parse.quote(message)
-    return f"https://wa.me/{parent_mobile}?text={encoded}"
 # -----------------------------
 # FEES MODULE
 # -----------------------------
