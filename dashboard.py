@@ -98,13 +98,14 @@ def ensure_receipts_sheet():
 
     try:
         ws = spreadsheet.worksheet("Receipts")
-    except:
+        return ws
+    except Exception:
         ws = spreadsheet.add_worksheet(
             title="Receipts",
-            rows=1000
+            rows=1000,
             cols=20
         )
-
+        
         ws.append_row([
             "Receipt No",
             "Date",
