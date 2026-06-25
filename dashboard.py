@@ -486,7 +486,7 @@ elif menu == "Fees":
                 ]
                 
                 parent_mobile = str(
-                    student_row.iloc[0]["WhatsApp 1"
+                    student_row.iloc[0]["Parent_WhatsApp"]
                 ).strip()
                 
                 parent_mobile = (
@@ -496,7 +496,7 @@ elif menu == "Fees":
                     .replace(" ", "")
                 )
                     
-                if len(parent_mobile) == 10
+                if len(parent_mobile) == 10:
                      parent_mobile = "91" + parent_mobile
                                   
                 wa_link = create_whatsapp_link(
