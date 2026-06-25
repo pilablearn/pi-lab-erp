@@ -521,7 +521,7 @@ elif menu == "Attendance":
             attendance_df["Student Name"] == selected_student
         ][0]
     
-        attendance_df.loc[idx, today_str] = statu
+        attendance_df.loc[idx, today_str] = status
 
         attendance_ws.clear()
         attendance_ws.update(
