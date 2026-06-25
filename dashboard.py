@@ -486,7 +486,7 @@ elif menu == "Fees":
                 ]
                 
                 parent_mobile = str(
-                    student_row.iloc[0]["Parent_WhatsApp"]
+                    student_row.iloc[0]["Parent WhatsAp"]
                 ).strip()
                 
                 parent_mobile = (
