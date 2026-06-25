@@ -4,6 +4,7 @@ import plotly.express as px
 import gspread
 import builtins
 import io
+import urllib.parse
 st.markdown("""
 <style>
 .main {
@@ -370,7 +371,32 @@ elif menu == "Students":
             st.success(f"Admission Added: {student_id}")
             st.cache_data.clear()
             st.rerun()
+def create_whatsapp_link(
+    parent_mobile,
+    student_name,
+    payment_month,
+    amount_paid,
+    receipt_no
+):
+    message = f"""
+Dear Parent,
 
+We have received the fee payment successfully.
+
+Student: {student_name}
+Fee Month: {payment_month}
+Amount Paid: ₹{amount_paid}
+Receipt No: {receipt_no}
+
+Please find the receipt attached.
+
+Regards,
+Pi Lab Learning
+8123417618
+"""
+
+    encoded = urllib.parse.quote(message)
+    return f"https://wa.me/{parent_mobile}?text={encoded}"
 # -----------------------------
 # FEES MODULE
 # -----------------------------
@@ -454,8 +480,40 @@ elif menu == "Fees":
                 ])
 
                 st.success(f"Payment Recorded | Receipt {receipt_no}")
-                st.cache_data.clear()
-                st.rerun()
+                
+                student_row = student_df[
+                    student_df["Student Name"] == student_name
+                ]
+                
+                parent_mobile = str(
+                    student_row.iloc[0]["WhatsApp 1"
+                ).strip()
+                
+                parent_mobile = (
+                    parent_mobile
+                    .replace(".0", ""
+                    .replace("+", "")
+                    .replace(" ", "")
+                )
+                    
+                if len(parent_mobile) == 10
+                     parent_mobile = "91" + parent_mobile
+                                  
+                wa_link = create_whatsapp_link(
+                    parent_mobile,
+                    student_name,
+                    payment_month,
+                    amount_paid,
+                    receipt_no
+                )
+                       
+                st.link_button(
+                    "Send Receipt via WhatsApp",
+                    wa_link
+                )
+                if st.button("Refresh Page"):
+                    st.cache_data.clear()
+                    st.rerun()
 # -----------------------------
 # ATTENDANCE MODULE
 # -----------------------------
