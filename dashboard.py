@@ -533,9 +533,9 @@ if st.button("Mark Attendance"):
     st.rerun()
 
 st.dataframe(attendance_df, use_container_width=True)
+
 # -----------------------------
 # ACADEMICS MODULE
-# -----------------------------
 elif menu == "Academics":
     action = st.selectbox(
         "Action",
