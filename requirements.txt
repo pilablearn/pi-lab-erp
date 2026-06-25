@@ -6,3 +6,6 @@ google-auth
 google-auth-oauthlib
 plotly
 import plotly.express as px
+streamlit-option-menu
+streamlit-extras
+plotly
