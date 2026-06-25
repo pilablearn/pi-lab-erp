@@ -255,7 +255,6 @@ menu = st.sidebar.radio(
 if st.sidebar.button("Logout"):
     st.session_state.logged_in = False
     st.rerun()
-
 # -----------------------------
 # DASHBOARD
 # -----------------------------
