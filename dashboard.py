@@ -166,7 +166,7 @@ def generate_receipt_pdf(
     payment_month,
     amount_paid,
     payment_mode
-)
+):
     filename = f"receipt_{receipt_no}.pdf"
 
     doc = SimpleDocTemplate(filename, pagesize=A4)
