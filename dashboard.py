@@ -111,7 +111,6 @@ if "Outstanding Amount" in fee_df.columns:
     fee_df["Outstanding Amount"] = pd.to_numeric(
         fee_df["Outstanding Amount"], errors="coerce"
     ).fillna(0)
-
 return student_df, fee_df, marks_df
 
 # LOGIN
