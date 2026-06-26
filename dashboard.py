@@ -559,130 +559,131 @@ elif menu == "Fees":
             )
                 
         st.dataframe(fee_df, use_container_width=True)
-        
-    else:
-        active_students = []
+    
+else:
+    active_students = []
 
-        if not student_df.empty:
-            active_students = student_df[
-                student_df["Status"] == "Active"
-            ]["Student Name"].tolist()
+    if not student_df.empty:
+        active_students = student_df[
+            student_df["Status"] == "Active"
+        ]["Student Name"].tolist()
 
-        student_name = st.selectbox(
-            "Student",
-            sorted(active_students)
-        )
+    student_name = st.selectbox(
+            
+        "Student",
+        sorted(active_students)
+    )
 
-        payment_month = st.selectbox(
-            "Fee Month",
-            ["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"]
-        )
+    payment_month = st.selectbox(
+        "Fee Month",
+        ["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"]
+    )
 
-        amount_paid = st.number_input(
-            "Amount Paid",
-            min_value=0
-        )
+    amount_paid = st.number_input(
+        "Amount Paid",
+        min_value=0
+    )
 
-        payment_mode = st.selectbox(
-            "Payment Mode",
-            ["Cash", "UPI", "Bank Transfer"]
-        )
+    payment_mode = st.selectbox(
+        "Payment Mode",
+        ["Cash", "UPI", "Bank Transfer"]
+    )
 
-        payment_date = st.date_input("Payment Date")
+    payment_date = st.date_input("Payment Date")
 
-        if st.button("Submit Payment"):
-            fee_ws = get_sheet("Fee Tracker")
-            receipt_ws = get_sheet("Receipts")
+    if st.button("Submit Payment"):
+        fee_ws = get_sheet("Fee Tracker")
+        receipt_ws = get_sheet("Receipts")
 
-            rows = fee_ws.get_all_values()
-            headers = rows[0]
+        rows = fee_ws.get_all_values()
+        headers = rows[0]
 
-            month_col = headers.index(payment_month) + 1
-            date_col = headers.index(f"{payment_month} Date") + 1
+        month_col = headers.index(payment_month) + 1
+        date_col = headers.index(f"{payment_month} Date") + 1
 
-            target_row = None
-            student_id = ""
+        target_row = None
+        student_id = ""
 
-            for i, row in enumerate(rows[1:], start=2):
-                if len(row) > 1 and row[1] == student_name:
-                    target_row = i
-                    student_id = row[0]
-                    break
+        for i, row in enumerate(rows[1:], start=2):
+            if len(row) > 1 and row[1] == student_name:
+                target_row = i
+                student_id = row[0]
+                break
 
-            if target_row:
-                fee_ws.update_cell(target_row, month_col, "Paid")
-                fee_ws.update_cell(
-                    target_row,
-                    date_col,
-                    str(payment_date)
-                )
+        if target_row:
+            fee_ws.update_cell(target_row, month_col, "Paid")
+            fee_ws.update_cell(
+                target_row,
+                date_col,
+                str(payment_date)
+            )
 
-                receipt_rows = receipt_ws.get_all_values()
-                receipt_no = f"RCP-{datetime.now().year}-{len(receipt_rows):05d}"
+            receipt_rows = receipt_ws.get_all_values()
+            receipt_no = f"RCP-{datetime.now().year}-{len(receipt_rows):05d}"
 
-                receipt_ws.append_row([
-                    receipt_no,
-                    str(payment_date),
-                    student_id,
-                    student_name,
-                    payment_month,
-                    amount_paid,
-                    payment_mode
-                ])
+            receipt_ws.append_row([
+                receipt_no,
+                str(payment_date),
+                student_id,
+                student_name,
+                payment_month,
+                amount_paid,
+                payment_mode
+            ])
 
-                st.success(f"Payment Recorded | Receipt {receipt_no}")
+            st.success(f"Payment Recorded | Receipt {receipt_no}")
 
-                pdf_file = generate_receipt_pdf(
-                    receipt_no,
-                    payment_date,
-                    student_id,
-                    student_name,
-                    payment_month,
-                    amount_paid,
-                    payment_mode
+            pdf_file = generate_receipt_pdf(
+                receipt_no,
+                payment_date,
+                student_id,
+                student_name,
+                payment_month,
+                amount_paid,
+                payment_mode
+            )
+                    
+            with open(pdf_file, "rb") as file:
+                st.download_button(
+                    label="Download Receipt PDF",
+                    data=file,
+                    file_name=pdf_file,
+                    mime="application/pdf"
                 )
                     
-                with open(pdf_file, "rb") as file:
-                    st.download_button(
-                        label="Download Receipt PDF",
-                        data=file,
-                        file_name=pdf_file,
-                        mime="application/pdf"
-                    )
-                    
-                student_row = student_df[
-                    student_df["Student Name"] == student_name
-                ]
+            student_row = student_df[
+                student_df["Student Name"] == student_name
+            ]
                 
-                parent_mobile = str(
-                    student_row.iloc[0]["Parent WhatsApp"]
-                ).strip()
+            parent_mobile = str(
+                student_row.iloc[0]["Parent WhatsApp"]
+            ).strip()
                 
-                parent_mobile = (
-                    parent_mobile
-                    .replace(".0", "")
-                    .replace("+", "")
-                    .replace(" ", "")
-                )
+            parent_mobile = (
+                parent_mobile
+                .replace(".0", "")
+                .replace("+", "")
+                .replace(" ", "")
+            )
                     
-                if len(parent_mobile) == 10:
-                     parent_mobile = "91" + parent_mobile
+            if len(parent_mobile) == 10:
+                    parent_mobile = "91" + parent_mobile
                                   
-                wa_link = create_whatsapp_link(
-                    parent_mobile,
-                    student_name,
-                    payment_month,
-                    amount_paid,
-                    receipt_no
-                )
+            wa_link = create_whatsapp_link(
+                parent_mobile,
+                student_name,
+                payment_month,
+                amount_paid,
+                receipt_no
+            )
                        
-                st.link_button(
-                    "Send Receipt via WhatsApp",
-                    wa_link
-                )
-                if st.button("Refresh Page"):
-                    st.cache_data.clear()
-                    st.rerun()
+            st.link_button(
+                "Send Receipt via WhatsApp",
+                wa_link
+            )
+            if st.button("Refresh Page"):
+                st.cache_data.clear()
+                st.rerun()
 # -----------------------------
 # ATTENDANCE MODULE
 # -----------------------------
