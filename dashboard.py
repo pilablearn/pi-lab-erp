@@ -559,8 +559,7 @@ elif menu == "Fees":
             )
                 
         st.dataframe(fee_df, use_container_width=True)
-    
-else:
+    else:
     active_students = []
 
     if not student_df.empty:
@@ -684,6 +683,7 @@ else:
             if st.button("Refresh Page"):
                 st.cache_data.clear()
                 st.rerun()
+
 # -----------------------------
 # ATTENDANCE MODULE
 # -----------------------------
