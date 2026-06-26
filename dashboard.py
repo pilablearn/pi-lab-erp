@@ -374,7 +374,7 @@ if menu == "Home":
     <h1 style='text-align:center;color:#0B3D91;'>
     PI LAB LEARNING
     </h1>
-    """, unsafe_allow_html=True
+    """, unsafe_allow_html=True)
                 
     st.markdown("""
     <h3 style='text-align:center;'>
