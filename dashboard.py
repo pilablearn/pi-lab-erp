@@ -304,7 +304,7 @@ def load_data():
         encoded = urllib.parse.quote(message)
         return f"https://wa.me/{parent_mobile}?text={encoded}"
 
-    student_df, fee_df, marks_df = load_data()
+    
 
 # -----------------------------
 # LOGIN
@@ -512,7 +512,7 @@ elif menu == "Students":
 # -----------------------------
 elif menu == "Fees":
     action = st.selectbox(
-        "Action",
+        "",
         ["View Ledger", "Collect Fee"]
     )
 
@@ -527,11 +527,18 @@ elif menu == "Fees":
             "Reminder Type",
             ["Polite", "Due", "Urgent"]
         )
+        
+        st.write("fee_df exists:", "fee_df" in globals()))
+        
+        if "fee_df" in globals():
+            st.write("Type:", type(fee_df))
+            st.write("Columns:", fee_df.columns.tolist())
 
-        if st.button("Show Pending Students"):
-            pending_df = fee_df[
-                fee_df[selected_month].astype(str).str.strip() != "Paid"
-            ]
+        student_df, fee_df, marks_df = load_data()
+  
+        pending_df = fee_df[
+            fee_df[selected_month].astype(str).str.strip() != "Paid"
+        ]
             
             st.subheader(f"Pending Students - {selected_month}")
             
