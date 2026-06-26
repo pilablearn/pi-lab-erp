@@ -487,7 +487,14 @@ elif menu == "Fees":
             
             for _, row in pending_df.iterrows():
                 student_name = row["Student Name"]
-                mobile = str(row["Parent WhatsApp"]).replace(".0", "").strip()
+                
+                student_row = student_df[
+                    student_df["Student Name"] == student_name
+                ]
+                
+                mobile = str(
+                    student_row.iloc[0]["Parent WhatsApp"]
+                ).replace(".0", "").strip()
                 
                 if len(mobile) == 10:
                     mobile = "91" + mobile
