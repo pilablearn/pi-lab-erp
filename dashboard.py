@@ -253,14 +253,12 @@ def load_data():
             ).fillna(0)
 
     return student_df, fee_df, marks_df
-
-
-    def create_fee_reminder_link(
-        parent_mobile,
-        student_name,
-        month,
-        reminder_type
-    ):
+def create_fee_reminder_link(
+    parent_mobile,
+    student_name,
+     month,
+    reminder_type
+):
         if reminder_type == "polite":
             message = f"""
     Dear Parent,
