@@ -325,8 +325,73 @@ def verify_login(username, password):
 
     return False, None
 
+if menu == "Login":
+    st.title("⚡ PI LAB ERP Login")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        ok, role = verify_login(username, password)
+
+        if ok:
+            st.session_state.logged_in = True
+            st.session_state.user_role = role
+            st.success("f"Welcome {role}")
+            st.rerun()
+        else:
+            st.error("Invalid username or password")
+
+# -----------------------------
+# SIDEBAR
+# -----------------------------
+st.sidebar.title("PI LAB ERP")
+st.sidebar.image("logo.png", width=140)
+
 if not st.session_state.logged_in:
-    st.title("⚡ PI LAB LEARNING ERP")
+    menu = st.sidebar.radio(
+        "Menu",
+        [
+            "Home",
+            "About Us",
+            "Courses",
+            "AI Program",
+            "Contact",
+            "Login"
+        ]
+    )
+else:
+    menu = st.sidebar.radio(
+        "ERP Menu",
+        if st.session_state.user_role == "Admin":
+            erp_menu = [
+                "Admin Dashboard",
+                "Students",
+                "Fees",
+                "Attendance",
+                "Academics"
+            ]
+        else:
+            erp_menu = [
+                "Attendance",
+                "Academics"
+            ]
+        
+        menu = st.sidebar.radio("ERP Menu", erp_menu)
+    
+        if st.session_state.logged_in:
+        
+            if st.sidebar.button("Logout"):
+                st.session_state.logged_in = False
+                st.rerun()
+                
+            student_df, fee_df, marks_df = load_data()
+            
+        else:
+            student_df, fee_df, marks_df = None, None, None
+
+if menu == "Login":
+    st.title("Admin Login")
 
     username = st.text_input("Username")
     password = st.text_input("Password", type="password")
@@ -339,37 +404,12 @@ if not st.session_state.logged_in:
             st.session_state.user_role = role
             st.rerun()
         else:
-            st.error("Invalid login")
-
-    st.stop()
-
-# -----------------------------
-# SIDEBAR
-# -----------------------------
-st.sidebar.title("PI LAB ERP")
-st.sidebar.image("logo.png", width=140)
-
-menu = st.sidebar.radio(
-    "Menu",
-    [
-        "Home",
-        "Admin Dashboard",
-        "Students",
-        "Fees",
-        "Attendance",
-        "Academics"
-    ]
-)
-
-if st.sidebar.button("Logout"):
-    st.session_state.logged_in = False
-    st.rerun()
-    
-student_df, fee_df, marks_df = load_data()
+            st.error("Invalid username or password")
+            
 # -----------------------------
 # HOME PAGE
 # -----------------------------
-if menu == "Home":
+elif menu == "Home":
     st.markdown("""
     <h1 style='text-align:center;color:#0B3D91;'>
     PI LAB LEARNING
@@ -382,24 +422,81 @@ if menu == "Home":
     </h3>
     """, unsafe_allow_html=True)
 
-    st.image("banner.png", use_container_width=True)
+    # HERO SECTION
+    st.image("homepage_full.png", use_container_width=True)
 
-    st.markdown("---")
+    st.markdown("## Our Courses")
+    
+    c1, c2, c3, c4 = st.columns(4)
+    
+    with c1:
+        st.info("📘 PUC\n\n• Maths\n• Physics\n• Accountancy")
 
-    col1, col2, col3, col4 = st.columns(4)
+    with c2:
+        st.info("🎓 ICSE 10th\n\n• Maths\n• Physics")
 
-    with col1:
-        st.metric("Students", "25+")
+    with c3:
+        st.info("🏫 State Board\n\n• All Subjects")
+
+    with c4:
+        st.info("💻 CBSE\n\n• Maths\n• Science")
         
-    with col2:
-        st.metric("Boards", "4")
+# About Us
+elif menu == "About Us":
+    st.title("About Pi Lab Learning")
+
+    st.write("""
+    Pi Lab Learning is a concept-based coaching center in Bangalore
+    focused on building strong fundamentals in Mathematics, Science,
+    Physics, Accountancy and AI-oriented learning.
+
+    We specialize in:
+    • CBSE
+    • ICSE
+    • State Board
+    • PUC
+
+    Our mission is to build concepts, confidence, and future careers.
+    """)
+    
+#Courses page
+elif menu == "Courses":
+    st.title("Our Courses")
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+        st.info("📘 PUC\n\nMaths\nPhysics\nAccountancy")
+
+    with c2:
+        st.info("🎓 ICSE 10th\n\nMaths\nPhysics")
+
+    with c3:
+        st.info("🏫 State Board\n\nAll Subjects")
+
+    with c4:
+        st.info("💻 CBSE\n\nMaths\nScience")
         
-    with col3:
-        st.metric("Experience", "12+ Years")
-                  
-    with col4:
-        st.metric("Mode", "Hybrid")
-        
+#AI Program
+elif menu == "AI Program":
+    st.title("AI Career Program")
+
+    st.write("""
+    • Industry Expert Mentors  
+    • Real AI Projects  
+    • Python Foundations  
+    • Future Tech Skills  
+    • Internship Guidance  
+    """)
+
+#Contact
+elif menu == "Contact":
+    st.title("Contact Us")
+
+    st.write("📞 8123417618")
+    st.write("📍 Near NPS Silk Board, Begur Road, Bangalore")
+    st.write("💻 Hybrid Classes Available — Online & Offline")
+    
 # -----------------------------
 # DASHBOARD
 # -----------------------------
