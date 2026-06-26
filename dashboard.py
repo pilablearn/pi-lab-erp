@@ -447,7 +447,7 @@ elif menu == "Admin Dashboard":
     if "Outstanding Amount" in fee_df.columns:
         outstanding = fee_df["Outstanding Amount"].sum()
     
-    with c2
+    with c1
         metric_card("🎓 Total Students", total_students)
     
     with c2:
