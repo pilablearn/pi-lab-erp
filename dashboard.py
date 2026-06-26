@@ -511,8 +511,8 @@ elif menu == "Fees":
         "",
         ["View Ledger", "Collect Fee"]
     )
-
-     student_df, fee_df, marks_df = load_data()
+    
+    student_df, fee_df, marks_df = load_data()
 
     if action == "View Ledger":
 
