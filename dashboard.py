@@ -254,7 +254,57 @@ def load_data():
 
     return student_df, fee_df, marks_df
 
-student_df, fee_df, marks_df = load_data()
+
+    def create_fee_reminder_link(
+        parent_mobile,
+        student_name,
+        month,
+        reminder_type
+    ):
+        if reminder_type == "polite":
+            message = f"""
+    Dear Parent,
+
+    This is a gentle reminder that the tuition fee for {student_name} for {month} is due on 5th of this month.
+
+    Kindly make the payment on or before the due date.
+
+    Regards,
+    Pi Lab Learning
+    8123417618
+    """
+        elif reminder_type == "due":
+            message = f"""
+    Dear Parent,
+
+    This is a reminder that the tuition fee for {student_name} for {month} is still pending.
+
+    We kindly request you to complete the payment at the earliest.
+
+    Regards,
+    Pi Lab Learning
+    8123417618
+    """
+    
+        else:
+            message = f"""
+    Dear Parent,
+
+    This is an urgent reminder regarding the pending tuition fee for {student_name} for {month}.
+
+    Kindly arrange to complete the pending payment at the earliest.
+
+    Please ignore this message if payment has already been made.
+
+    Regards,
+    Pi Lab Learning
+    8123417618
+    """
+
+        encoded = urllib.parse.quote(message)
+        return f"https://wa.me/{parent_mobile}?text={encoded}"
+
+    student_df, fee_df, marks_df = load_data()
 
 # -----------------------------
 # LOGIN
