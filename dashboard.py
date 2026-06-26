@@ -528,7 +528,7 @@ elif menu == "Fees":
             ["Polite", "Due", "Urgent"]
         )
         
-        st.write("fee_df exists:", "fee_df" in globals()))
+        st.write("fee_df exists:", "fee_df" in globals())
         
         if "fee_df" in globals():
             st.write("Type:", type(fee_df))
