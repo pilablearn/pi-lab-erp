@@ -352,7 +352,8 @@ st.sidebar.image("logo.png", width=140)
 menu = st.sidebar.radio(
     "Menu",
     [
-        "Dashboard",
+        "Home"
+        "Admin Dashboard",
         "Students",
         "Fees",
         "Attendance",
@@ -363,10 +364,46 @@ menu = st.sidebar.radio(
 if st.sidebar.button("Logout"):
     st.session_state.logged_in = False
     st.rerun()
+    
+student_df, fee_df, marks_df = load_data()
+# -----------------------------
+# HOME PAGE
+# -----------------------------
+if menu == "Home":
+    st.markdown("""
+    <h1 style='text-align:center;color:#0B3D91;'>
+    PI LAB LEARNING
+    </h1>
+    """, unsafe_allow_html=True
+                
+    st.markdown("""
+    <h3 style='text-align:center;'>
+    Learn Today, Lead Tomorrow
+    </h3>
+    """, unsafe_allow_html=True)
+
+    st.image("banner.png", use_container_width=True)
+
+    st.markdown("---")
+
+    col1, col2, col3, col4 = st.columns(4)
+
+    with col1:
+        st.metric("Students", "25+")
+        
+    with col2:
+        st.metric("Boards", "4")
+        
+    with col3:
+        st.metric("Experience", "12+ Years")
+                  
+    with col4:
+        st.metric("Mode", "Hybrid")
+        
 # -----------------------------
 # DASHBOARD
 # -----------------------------
-if menu == "Dashboard":
+elif menu == "Admin Dashboard":
     st.markdown("<h1 style='font-size:48px;'>Dashboard</h1>", unsafe_allow_html=True)
     st.markdown("<br>", unsafe_allow_html=True)
     
@@ -397,31 +434,27 @@ if menu == "Dashboard":
 
     c1,c2,c3 = st.columns(3)
 
-    with c1:
-        metric_card("🎓 Total Students", 17)
+    total_students = len(student_df)
 
-    with c2:
-        metric_card("👨‍🎓 Active Students", 17)
-
-    with c3:
-        metric_card("💰 Outstanding", "₹151,500")
-        
-    with c2:
-        active_count = 0
-        if not student_df.empty and "Status" in student_df.columns:
-            active_count = len(
-                student_df[
-                    student_df["Status"].str.strip() == "Active"
-                ]
-            )
-        st.metric("Active Students", active_count)
-
-    with c3:
-        outstanding = 0
-        if not fee_df.empty and "Outstanding Amount" in fee_df.columns:
-            outstanding = fee_df["Outstanding Amount"].sum()
-
-        st.metric("Outstanding", f"₹ {outstanding:,.0f}")
+    active_students = total_students
+    if "Status" in student_df.columns:
+        active_students = len(
+            student_df[
+                student_df["Status"].astype(str).str.strip() == "Active"
+            ]
+        )
+outstanding = 0
+if "Outstanding Amount" in fee_df.columns:
+    outstanding = fee_df["Outstanding Amount"].sum()
+    
+with c1:
+    metric_card("🎓 Total Students", total_students)
+    
+with c2:
+    metric_card("👨‍🎓 Active Students", active_students)
+    
+with c3:
+    metric_card("💰 Outstanding", f"₹{outstanding:,.0f}")
 # -----------------------------
 # STUDENTS MODULE
 # -----------------------------
