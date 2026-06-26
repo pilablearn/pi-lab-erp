@@ -568,7 +568,7 @@ elif menu == "Fees":
                 wa_link
             )
                 
-                st.dataframe(fee_df, use_container_width=True)
+        st.dataframe(fee_df, use_container_width=True)
         
     else:
         active_students = []
