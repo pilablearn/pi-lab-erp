@@ -540,14 +540,14 @@ elif menu == "Fees":
             fee_df[selected_month].astype(str).str.strip() != "Paid"
         ]
             
-            st.subheader(f"Pending Students - {selected_month}")
+        st.subheader(f"Pending Students - {selected_month}")
             
-            for _, row in pending_df.iterrows():
-                student_name = row["Student Name"]
+        for _, row in pending_df.iterrows():
+            student_name = row["Student Name"]
                 
-                student_row = student_df[
-                    student_df["Student Name"] == student_name
-                ]
+            student_row = student_df[
+                student_df["Student Name"] == student_name
+            ]
                 
                 mobile = str(
                     student_row.iloc[0]["Parent WhatsApp"]
