@@ -421,16 +421,13 @@ elif menu == "Admin Dashboard":
 
     st.plotly_chart(fig, use_container_width=True)
     
-    c1, c2, c3 = st.columns(3)
-
-    with c1:
-        def metric_card(title, value):
-            st.markdown(f"""
-            <div class="metric-card">
-                <div class="label">{title}</div>
-                <div class="big-number">{value}</div>
-            </div>
-            """, unsafe_allow_html=True)
+    def metric_card(title, value):
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="label">{title}</div>
+            <div class="big-number">{value}</div>
+        </div>
+        """, unsafe_allow_html=True)
 
     c1,c2,c3 = st.columns(3)
 
@@ -440,7 +437,10 @@ elif menu == "Admin Dashboard":
     if "Status" in student_df.columns:
         active_students = len(
             student_df[
-                student_df["Status"].astype(str).str.strip() == "Active"
+                student_df["Status"]
+                .astype(str)
+                .str.strip()
+                .str.lower() == "active"
             ]
         )
 outstanding = 0
