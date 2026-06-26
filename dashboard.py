@@ -512,6 +512,8 @@ elif menu == "Fees":
         ["View Ledger", "Collect Fee"]
     )
 
+     student_df, fee_df, marks_df = load_data()
+
     if action == "View Ledger":
 
         selected_month = st.selectbox(
@@ -523,7 +525,6 @@ elif menu == "Fees":
             "Reminder Type",
             ["Polite", "Due", "Urgent"]
         )
-        student_df, fee_df, marks_df = load_data()
   
         pending_df = fee_df[
             fee_df[selected_month].astype(str).str.strip() != "Paid"
