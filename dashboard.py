@@ -467,8 +467,45 @@ elif menu == "Fees":
     )
 
     if action == "View Ledger":
-        st.dataframe(fee_df, use_container_width=True)
 
+        selected_month = st.selectbox(
+            "Reminder Month",
+            ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"]
+        )
+
+        reminder_type = st.selectbox(
+            "Reminder Type",
+            ["Polite", "Due", "Urgent"]
+        )
+
+        if st.button("Show Pending Students"):
+            pending_df = fee_df[
+                fee_df[selected_month].astype(str).str.strip() != "Paid"
+            ]
+            
+            st.subheader(f"Pending Students - {selected_month}")
+            
+            for _, row in pending_df.iterrows():
+                student_name = row["Student Name"]
+                mobile = str(row["Parent WhatsApp"]).replace(".0", "").strip()
+                
+                if len(mobile) == 10:
+                    mobile = "91" + mobile
+                
+                wa_link = create_fee_reminder_link(
+                    mobile,
+                    student_name,
+                    selected_month,
+                    reminder_type.lower()
+                )
+                
+                st.link_button(
+                    f"Send Reminder - {student_name}",
+                    wa_link
+                )
+                
+                st.dataframe(fee_df, use_container_width=True)
+        
     else:
         active_students = []
 
