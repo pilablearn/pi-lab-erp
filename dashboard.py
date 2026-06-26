@@ -549,24 +549,24 @@ elif menu == "Fees":
                 student_df["Student Name"] == student_name
             ]
                 
-                mobile = str(
-                    student_row.iloc[0]["Parent WhatsApp"]
-                ).replace(".0", "").strip()
+            mobile = str(
+                student_row.iloc[0]["Parent WhatsApp"]
+            ).replace(".0", "").strip()
                 
-                if len(mobile) == 10:
-                    mobile = "91" + mobile
+            if len(mobile) == 10:
+                mobile = "91" + mobile
                 
-                wa_link = create_fee_reminder_link(
-                    mobile,
-                    student_name,
-                    selected_month,
-                    reminder_type.lower()
-                )
+            wa_link = create_fee_reminder_link(
+                mobile,
+                student_name,
+                selected_month,
+                reminder_type.lower()
+            )
                 
-                st.link_button(
-                    f"Send Reminder - {student_name}",
-                    wa_link
-                )
+            st.link_button(
+                f"Send Reminder - {student_name}",
+                wa_link
+            )
                 
                 st.dataframe(fee_df, use_container_width=True)
         
