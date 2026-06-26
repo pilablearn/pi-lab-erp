@@ -352,7 +352,7 @@ st.sidebar.image("logo.png", width=140)
 menu = st.sidebar.radio(
     "Menu",
     [
-        "Home"
+        "Home",
         "Admin Dashboard",
         "Students",
         "Fees",
