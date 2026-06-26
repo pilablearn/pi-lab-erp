@@ -443,18 +443,18 @@ elif menu == "Admin Dashboard":
                 .str.lower() == "active"
             ]
         )
-outstanding = 0
-if "Outstanding Amount" in fee_df.columns:
-    outstanding = fee_df["Outstanding Amount"].sum()
+    outstanding = 0
+    if "Outstanding Amount" in fee_df.columns:
+        outstanding = fee_df["Outstanding Amount"].sum()
     
-with c1:
-    metric_card("🎓 Total Students", total_students)
+    with c2
+        metric_card("🎓 Total Students", total_students)
     
-with c2:
-    metric_card("👨‍🎓 Active Students", active_students)
+    with c2:
+        metric_card("👨‍🎓 Active Students", active_students)
     
-with c3:
-    metric_card("💰 Outstanding", f"₹{outstanding:,.0f}")
+    with c3:
+        metric_card("💰 Outstanding", f"₹{outstanding:,.0f}")
 # -----------------------------
 # STUDENTS MODULE
 # -----------------------------
