@@ -61,6 +61,32 @@ st.set_page_config(
     layout="wide"
 )
 
+st.markdown("""
+<style>
+/* Main page background */
+.stApp {
+    background-color: #EAF2FF;
+    }
+    
+    /* Sidebar */
+    section[data-testid="stSidebar"] {
+        background: linear-gradient(180deg, #0B3D91 0%, #123D7A 100%);
+    }
+
+    /* Sidebar text */
+    section[data-testid="stSidebar"] * {
+        color: white !important;
+    }
+    
+    /* Cards / containers */
+    div[data-testid="stMetric"] {
+        background-color: white;
+        padding: 15px;
+        border-radius: 12px;
+        box-shadow: 0 3px 10px rgba(0,0,0,0.08);
+    }
+    </style>
+    """, unsafe_allow_html=True)
 # -----------------------------
 # SESSION STATE
 # -----------------------------
