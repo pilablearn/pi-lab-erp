@@ -321,9 +321,8 @@ def verify_login(username, password):
     ]
 
     if not match.empty:
-        return True, match.iloc[0]["Role"]
-
-    return False, None
+        role = str(match.iloc[0]["Role"]).strip()
+        return True, role
 
 # -----------------------------
 # SIDEBAR
@@ -337,7 +336,7 @@ if not st.session_state.logged_in:
         ["Home", "About Us", "Courses", "AI Program", "Contact", "Login"]
     )
 else:
-    if st.session_state.user_role == "Admin":
+    if str(st.session_state.user_role).strip().lower() == "admin":
         erp_menu = [
             "Admin Dashboard",
             "Students",
@@ -372,6 +371,7 @@ if (not st.session_state.logged_in) and menu == "Login":
         ok, role = verify_login(username, password)
 
         if ok:
+            st.write("Logged role:", role)
             st.session_state.logged_in = True
             st.session_state.user_role = role
             st.rerun()
