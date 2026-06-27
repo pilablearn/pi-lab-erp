@@ -325,23 +325,6 @@ def verify_login(username, password):
 
     return False, None
 
-if menu == "Login":
-    st.title("⚡ PI LAB ERP Login")
-
-    username = st.text_input("Username")
-    password = st.text_input("Password", type="password")
-
-    if st.button("Login"):
-        ok, role = verify_login(username, password)
-
-        if ok:
-            st.session_state.logged_in = True
-            st.session_state.user_role = role
-            st.success(f"Welcome {role}")
-            st.rerun()
-        else:
-            st.error("Invalid username or password")
-
 # -----------------------------
 # SIDEBAR
 # -----------------------------
@@ -351,14 +334,7 @@ st.sidebar.image("logo.png", width=140)
 if not st.session_state.logged_in:
     menu = st.sidebar.radio(
         "Menu",
-        [
-            "Home",
-            "About Us",
-            "Courses",
-            "AI Program",
-            "Contact",
-            "Login"
-        ]
+        ["Home", "About Us", "Courses", "AI Program", "Contact", "Login"]
     )
 else:
     if st.session_state.user_role == "Admin":
@@ -386,7 +362,7 @@ if st.session_state.logged_in:
 else:
     student_df, fee_df, marks_df = None, None, None
 
-if menu == "Login":
+if (not st.session_state.logged_in) and menu == "Login":
     st.title("Admin Login")
 
     username = st.text_input("Username")
