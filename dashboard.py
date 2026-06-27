@@ -411,13 +411,23 @@ if (not st.session_state.logged_in) and menu == "Login":
 # -----------------------------
 elif menu == "Home":
     st.markdown("""
-    <h1 style='text-align:center;color:#0B3D91;'>
-    PI LAB LEARNING
+    <h1 style='text-align:center;
+    font-size:64px;
+    font-weight:800;
+    margin-bottom:0;'>
+
+    <span style='color:#E53935;'>PI LAB</span>
+    <span style='color:#0B3D91;'> LEARNING</span>
+
     </h1>
     """, unsafe_allow_html=True)
                 
     st.markdown("""
-    <h3 style='text-align:center;'>
+    <h3 style='text-align:center;
+    color:#1E2A44;
+    font-size:30px;
+    font-weight:600;
+    margin-top:5px;'>
     Learn Today, Lead Tomorrow
     </h3>
     """, unsafe_allow_html=True)
