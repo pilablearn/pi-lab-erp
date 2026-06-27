@@ -361,7 +361,7 @@ if not st.session_state.logged_in:
         ]
     )
 else:
-    menu = st.sidebar.radio(
+    if st.session_state.user_role == "Admin":
         "ERP Menu",
         if st.session_state.user_role == "Admin":
             erp_menu = [
