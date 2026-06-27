@@ -336,7 +336,9 @@ if not st.session_state.logged_in:
         ["Home", "About Us", "Courses", "AI Program", "Contact", "Login"]
     )
 else:
-    if str(st.session_state.user_role).strip().lower() == "Admin Portal":
+    role = str(st.session_state.user_role).strip().lower()
+    
+    if "admin" in role:
         erp_menu = [
             "Admin Dashboard",
             "Students",
