@@ -362,33 +362,29 @@ if not st.session_state.logged_in:
     )
 else:
     if st.session_state.user_role == "Admin":
-        "ERP Menu",
-        if st.session_state.user_role == "Admin":
-            erp_menu = [
-                "Admin Dashboard",
-                "Students",
-                "Fees",
-                "Attendance",
-                "Academics"
-            ]
-        else:
-            erp_menu = [
-                "Attendance",
-                "Academics"
-            ]
+        erp_menu = [
+            "Admin Dashboard",
+            "Students",
+            "Fees",
+            "Attendance",
+            "Academics"
+        ]
+    else:
+        erp_menu = [
+            "Attendance",
+            "Academics"
+        ]
         
-        menu = st.sidebar.radio("ERP Menu", erp_menu)
+    menu = st.sidebar.radio("ERP Menu", erp_menu)
     
-        if st.session_state.logged_in:
-        
-            if st.sidebar.button("Logout"):
-                st.session_state.logged_in = False
-                st.rerun()
+if st.session_state.logged_in:
+    if st.sidebar.button("Logout"):
+        st.session_state.logged_in = False
+        st.rerun()
                 
-            student_df, fee_df, marks_df = load_data()
-            
-        else:
-            student_df, fee_df, marks_df = None, None, None
+    student_df, fee_df, marks_df = load_data()   
+else:
+    student_df, fee_df, marks_df = None, None, None
 
 if menu == "Login":
     st.title("Admin Login")
