@@ -665,9 +665,11 @@ elif menu == "Fees":
             "Reminder Type",
             ["Polite", "Due", "Urgent"]
         )
-  
+
+        status = fee_df[selected_month].fillna("NA").astype(str).str.strip()
+        
         pending_df = fee_df[
-            fee_df[selected_month].astype(str).str.strip() != "Paid"
+            ~status.isin(["Paid", "NA"])
         ]
             
         st.subheader(f"Pending Students - {selected_month}")
