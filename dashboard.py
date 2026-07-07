@@ -683,94 +683,94 @@ elif menu == "Fees":
                 .str.contains(search, case=False, na=False)
             ]
             
-         pending_df = pending_df[
+        pending_df = pending_df[
             pending_df[selected_month]
             .fillna("")
             .astype(str)
             .str.lower()
             == "pending"
         ]
-         st.subheader(f"Pending Students - {selected_month}")
+        st.subheader(f"Pending Students - {selected_month}")
         
-         for _, row in pending_df.iterrows():
+        for _, row in pending_df.iterrows():
              
-             col1,col2,col3,col4,col5 = st.columns([3,2,2,2,2])
+            col1,col2,col3,col4,col5 = st.columns([3,2,2,2,2])
              
-             with col1:
-                  st.write(row["Student Name"])
+            with col1:
+                st.write(row["Student Name"])
                  
-             with col2:
-                 st.write(f"₹{row['Monthly Fee']}")
+            with col2:
+                st.write(f"₹{row['Monthly Fee']}")
                  
-             with col3:
-                 st.error("Pending")
+            with col3:
+                st.error("Pending")
                  
-             with col4:
+            with col4:
                  
-                  student_row = student_df[
-                     student_df["Student Name"] == row["Student Name"]
-                 ]
+                student_row = student_df[
+                    student_df["Student Name"] == row["Student Name"]
+                ]
                  
-                 if not student_row.empty:
+                if not student_row.empty:
                      
-                     if "Parent WhatsApp" in student_row.columns:
-                         mobile = str(student_row.iloc[0]["Parent WhatsApp"])
-                     else:
-                         mobile = str(student_row.iloc[0]["Parent WhatsApp"])
+                    if "Parent WhatsApp" in student_row.columns:
+                        mobile = str(student_row.iloc[0]["Parent WhatsApp"])
+                    else:
+                        mobile = str(student_row.iloc[0]["Parent WhatsApp"])
                          
-                      mobile = (
-                          mobile.replace(".0","")
-                          .replace("+","")
-                          .replace(" ","")
-                      )
-                      if len(mobile)==10:
-                          mobile="91"+mobile
+                    mobile = (
+                        mobile.replace(".0","")
+                        .replace("+","")
+                        .replace(" ","")
+                    )
+                    if len(mobile)==10:
+                        mobile="91"+mobile
                           
-                      link = create_fee_reminder_link(
-                          mobile,
-                          row["Student Name"],
-                          selected_month,
-                          reminder_type.lower()
-                       )
-                     st.link_button(
-                         "📲 Reminder",
-                         link
-                     )
+                    link = create_fee_reminder_link(
+                        mobile,
+                        row["Student Name"],
+                        selected_month,
+                        reminder_type.lower()
+                    )
+                    st.link_button(
+                        "📲 Reminder",
+                        link
+                    )
                      
-                with col5:
-                    st.write("-")
+            with col5:
+                st.write("-")
                     
-            st.divider()
+        st.divider()
         
-            paid_df = fee_df[
-                fee_df[selected_month]
-                .fillna("")
-                .astype(str)
-                .str.lower()
-                == "paid"
-            ]
+        paid_df = fee_df[
+            fee_df[selected_month]
+            .fillna("")
+            .astype(str)
+            .str.lower()
+            == "paid"
+        ]
         
-            st.subheader("Paid Students")
+        st.subheader("Paid Students")
         
-            st.dataframe(
-                paid_df[
-                    [
-                        Student ID",
-                        "Student Name",
-                        "Monthly Fee"
-                    ]
-                 ],
-                 use_container_width=True
-            )
+        st.dataframe(
+            paid_df[
+                [
+                    Student ID",
+                    "Student Name",
+                    "Monthly Fee"
+                ]
+            ],
+            use_container_width=True
+        )
         
-            csv = pending_df.to_csv(index=False)
+        csv = pending_df.to_csv(index=False)
         
-            st.download_button(
-                "⬇ Download Pending List",
-                csv,
-                file_name=f"{selected_month}_Pending.csv",
-                 mime="text/csv"
-            )
+        st.download_button(
+            "⬇ Download Pending List",
+            csv,
+            file_name=f"{selected_month}_Pending.csv",
+            mime="text/csv"
+        )
               
     else:
         active_students = []
