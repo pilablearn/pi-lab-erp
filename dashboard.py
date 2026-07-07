@@ -757,12 +757,12 @@ elif menu == "Fees":
         
         st.subheader("🟢 Paid Students")
         
-        paid_display = paid_df
+        paid_display = paid_df[
             ["Student ID", "Student Name", "Monthly Fee"]
         ]
         
         st.dataframe(
-            paid_display
+            paid_display,
             use_container_width=True
         )
         
