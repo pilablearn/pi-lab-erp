@@ -278,7 +278,14 @@ def load_data():
                 errors="coerce"
             ).fillna(0)
             
+    student_df.columns = student_df.columns.str.strip()
+    fee_df.columns = fee_df.columns.str.strip()
+    marks_df.columns = marks_df.columns.str.strip()
+    
     return student_df, fee_df, marks_df
+    paid_display = paid_df[
+        ["Student ID", "Student Name", "Monthly Fee"]
+    ]
 
 def create_fee_reminder_link(
     parent_mobile,
