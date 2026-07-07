@@ -757,9 +757,8 @@ elif menu == "Fees":
         
         st.subheader("🟢 Paid Students")
         
-        paid_display = paid_df[
-            ["Student ID", "Student Name", "Monthly Fee"]
-        ]
+        st.write("Fee Tracker Columns:")
+        st.write(paid_df.columns.tolist())
         
         st.dataframe(
             paid_display,
