@@ -667,7 +667,7 @@ elif menu == "Fees":
         )
 
         search = st.text_input(
-            "🔍 Search Student"
+            "🔍 Search Student",
             placeholder="Enter student name..."
             )
             
