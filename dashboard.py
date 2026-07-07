@@ -580,7 +580,7 @@ elif menu == "Students":
         admission_date = st.date_input("Admission Date")
         student_name = st.text_input("Student Name")
         parent_name = st.text_input("Parent Name")
-        whatsapp1 = st.text_input("WhatsApp 1")
+        whatsapp1 = st.text_input("Parent WhatsApp")
         whatsapp2 = st.text_input("WhatsApp 2")
 
         grade = st.selectbox(
@@ -655,52 +655,123 @@ elif menu == "Fees":
     student_df, fee_df, marks_df = load_data()
 
     if action == "View Ledger":
-
+        
         selected_month = st.selectbox(
             "Reminder Month",
-            ["Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", "Jan", "Feb", "Mar"]
+            ["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"]
         )
-
+        
         reminder_type = st.selectbox(
             "Reminder Type",
-            ["Polite", "Due", "Urgent"]
+            ["Polite","Due","Urgent"]
         )
-
-        status = fee_df[selected_month].fillna("NA").astype(str).str.strip()
         
-        pending_df = fee_df[
-            ~status.isin(["Paid", "NA"])
-        ]
+        status = (
+            fee_df[selected_month]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+            .str.lower()
+        )
+        
+        pending_df = fee_df.copy()
+        
+        if search:
             
-        st.subheader(f"Pending Students - {selected_month}")
-            
-        for _, row in pending_df.iterrows():
-            student_name = row["Student Name"]
-                
-            student_row = student_df[
-                student_df["Student Name"] == student_name
+            pending_df = pending_df[
+                pending_df["Student Name"]
+                .str.contains(search, case=False, na=False)
             ]
-                
-            mobile = str(
-                student_row.iloc[0]["Parent WhatsApp"]
-            ).replace(".0", "").strip()
-                
-            if len(mobile) == 10:
-                mobile = "91" + mobile
-                
-            wa_link = create_fee_reminder_link(
-                mobile,
-                student_name,
-                selected_month,
-                reminder_type.lower()
+            
+         pending_df = pending_df[
+            pending_df[selected_month]
+            .fillna("")
+            .astype(str)
+            .str.lower()
+            == "pending"
+        ]
+         st.subheader(f"Pending Students - {selected_month}")
+        
+         for _, row in pending_df.iterrows():
+             
+             col1,col2,col3,col4,col5 = st.columns([3,2,2,2,2])
+             
+             with col1:
+                  st.write(row["Student Name"])
+                 
+             with col2:
+                 st.write(f"₹{row['Monthly Fee']}")
+                 
+             with col3:
+                 st.error("Pending")
+                 
+             with col4:
+                 
+                  student_row = student_df[
+                     student_df["Student Name"] == row["Student Name"]
+                 ]
+                 
+                 if not student_row.empty:
+                     
+                     if "Parent WhatsApp" in student_row.columns:
+                         mobile = str(student_row.iloc[0]["Parent WhatsApp"])
+                     else:
+                         mobile = str(student_row.iloc[0]["Parent WhatsApp"])
+                         
+                      mobile = (
+                          mobile.replace(".0","")
+                          .replace("+","")
+                          .replace(" ","")
+                      )
+                      if len(mobile)==10:
+                          mobile="91"+mobile
+                          
+                      link = create_fee_reminder_link(
+                          mobile,
+                          row["Student Name"],
+                          selected_month,
+                          reminder_type.lower()
+                       )
+                     st.link_button(
+                         "📲 Reminder",
+                         link
+                     )
+                     
+                with col5:
+                    st.write("-")
+                    
+            st.divider()
+        
+            paid_df = fee_df[
+                fee_df[selected_month]
+                .fillna("")
+                .astype(str)
+                .str.lower()
+                == "paid"
+            ]
+        
+            st.subheader("Paid Students")
+        
+            st.dataframe(
+                paid_df[
+                    [
+                        Student ID",
+                        "Student Name",
+                        "Monthly Fee"
+                    ]
+                 ],
+                 use_container_width=True
             )
-                
-            st.link_button(
-                f"Send Reminder - {student_name}",
-                wa_link
+        
+            csv = pending_df.to_csv(index=False)
+        
+            st.download_button(
+                "⬇ Download Pending List",
+                csv,
+                file_name=f"{selected_month}_Pending.csv",
+                 mime="text/csv"
             )
-                
-        st.dataframe(fee_df, use_container_width=True)
+              
     else:
         active_students = []
 
