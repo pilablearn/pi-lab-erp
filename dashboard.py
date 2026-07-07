@@ -754,8 +754,7 @@ elif menu == "Fees":
         
         st.dataframe(
             paid_df[
-                [
-                    Student ID",
+                    "Student ID",
                     "Student Name",
                     "Monthly Fee"
                 ]
