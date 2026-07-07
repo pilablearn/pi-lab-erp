@@ -665,7 +665,12 @@ elif menu == "Fees":
             "Reminder Type",
             ["Polite","Due","Urgent"]
         )
-        
+
+        search = st.text_input(
+            "🔍 Search Student"
+            placeholder="Enter student name..."
+            )
+            
         status = (
             fee_df[selected_month]
             .fillna("")
@@ -750,15 +755,14 @@ elif menu == "Fees":
             == "paid"
         ]
         
-        st.subheader("Paid Students")
+        st.subheader("🟢 Paid Students")
+        
+        paid_display = paid_df
+            ["Student ID", "Student Name", "Monthly Fee"]
+        ]
         
         st.dataframe(
-            paid_df[
-                    "Student ID",
-                    "Student Name",
-                    "Monthly Fee"
-                ]
-            ],
+            paid_display
             use_container_width=True
         )
         
