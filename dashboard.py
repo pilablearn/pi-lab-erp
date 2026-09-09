@@ -4,7 +4,10 @@ import plotly.express as px
 import gspread
 import builtins
 import io
+import json
 import urllib.parse
+import urllib.request
+import urllib.error
 
 from reportlab.platypus import (
     SimpleDocTemplate,
