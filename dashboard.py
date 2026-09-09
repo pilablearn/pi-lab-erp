@@ -642,15 +642,7 @@ elif menu == "Courses":
         
 #AI Program
 elif menu == "AI Program":
-    st.title("AI Career Program")
-
-    st.write("""
-    • Industry Expert Mentors  
-    • Real AI Projects  
-    • Python Foundations  
-    • Future Tech Skills  
-    • Internship Guidance  
-    """)
+    render_pi_lab_ai_tutor()
 
 #Contact
 elif menu == "Contact":
