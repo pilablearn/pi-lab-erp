@@ -413,7 +413,7 @@ def render_pi_lab_ai_tutor():
             "Streamlit Cloud → Settings → Secrets, then restart the app."
         )
         st.code(
-            'EXPLABS_API_KEY = "xpl_91b50363…2d08"',
+            'EXPLABS_API_KEY = "xpl_326651b8f92e7f7d6ebb76ed5898697046ea5000"',
             language="toml"
         )
         return
