@@ -478,7 +478,7 @@ Teaching rules:
     if st.session_state.pi_lab_ai_messages:
         if st.button("Clear AI conversation"):
             st.session_state.pi_lab_ai_messages = []
-            st.rerun(
+            st.rerun()
         
 
 # -----------------------------
