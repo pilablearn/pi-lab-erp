@@ -336,6 +336,152 @@ Pi Lab Learning
     return f"https://wa.me/{parent_mobile}?text={encoded}"
 
 # -----------------------------
+# PI LAB AI ASSISTANT
+# -----------------------------
+EXPLABS_BASE_URL = "https://api.experientiallabs.ai/v1"
+EXPLABS_DEFAULT_MODEL = "gpt-6-astra"
+
+def get_experiential_api_key():
+    """Read the gateway key from Streamlit Secrets without exposing it."""
+    try:
+        return st.secrets["EXPLABS_API_KEY"]
+    except Exception:
+        return None
+
+def call_pi_lab_ai(messages, model=None, max_tokens=1200):
+    """
+    Call Experiential Labs' OpenAI-compatible Chat Completions endpoint.
+    The API key is read only from Streamlit Secrets.
+    """
+    api_key = get_experiential_api_key()
+    if not api_key:
+        raise RuntimeError(
+            "EXPLABS_API_KEY is not configured in Streamlit Secrets."
+        )
+
+    payload = {
+        "model": model or EXPLABS_DEFAULT_MODEL,
+        "messages": messages,
+        "max_tokens": max_tokens,
+    }
+
+    request = urllib.request.Request(
+        f"{EXPLABS_BASE_URL}/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=90) as response:
+            data = json.loads(response.read().decode("utf-8"))
+        return data["choices"][0]["message"]["content"]
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"AI gateway error ({e.code}): {body[:1000]}")
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Could not reach AI gateway: {e.reason}")
+    except (KeyError, IndexError, json.JSONDecodeError) as e:
+        raise RuntimeError(f"Unexpected AI gateway response: {e}")
+
+def render_pi_lab_ai_tutor():
+    st.title("⚡ Pi Lab AI Tutor")
+    st.caption(
+        "AI-powered learning support for Mathematics, Physics, Chemistry, "
+        "Biology, English and Accountancy."
+    )
+
+    if not get_experiential_api_key():
+        st.warning(
+            "AI is not configured yet. Add EXPLABS_API_KEY to "
+            "Streamlit Cloud → Settings → Secrets, then restart the app."
+        )
+        st.code(
+            'EXPLABS_API_KEY = "xpl_91b50363…2d08"',
+            language="toml"
+        )
+        return
+
+    c1, c2 = st.columns(2)
+    with c1:
+        subject = st.selectbox(
+            "Subject",
+            [
+                "Mathematics",
+                "Physics",
+                "Chemistry",
+                "Biology",
+                "English",
+                "Accountancy",
+                "General",
+            ],
+        )
+    with c2:
+        level = st.selectbox(
+            "Student Level",
+            ["Foundation", "School", "SSLC / Class 10", "PUC / Class 11-12", "Advanced"],
+        )
+
+    if "pi_lab_ai_messages" not in st.session_state:
+        st.session_state.pi_lab_ai_messages = []
+
+    for message in st.session_state.pi_lab_ai_messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    prompt = st.chat_input(
+        "Ask Pi Lab AI a question..."
+    )
+
+    if prompt:
+        system_prompt = f"""
+You are Pi Lab AI Tutor, the academic assistant for Pi Lab Learning.
+
+Subject: {subject}
+Student level: {level}
+
+Teaching rules:
+- Explain concepts clearly and step-by-step.
+- Match the student's level.
+- Prefer simple language before introducing technical terminology.
+- For numerical problems, show the formula, substitution, calculation and final answer.
+- For science, distinguish definitions, laws, observations and equations.
+- For board-exam preparation, highlight key points and common mistakes.
+- Do not invent syllabus-specific facts when the student has not provided the syllabus.
+- If a question is ambiguous, state the assumption you are making.
+- Do not claim to have checked school records, marks, fees or attendance.
+- Keep answers useful for actual learning rather than merely giving the final answer.
+"""
+
+        api_messages = [{"role": "system", "content": system_prompt}]
+        api_messages.extend(st.session_state.pi_lab_ai_messages)
+        api_messages.append({"role": "user", "content": prompt})
+
+        st.session_state.pi_lab_ai_messages.append(
+            {"role": "user", "content": prompt}
+        )
+
+        with st.chat_message("assistant"):
+            with st.spinner("Pi Lab AI is thinking..."):
+                try:
+                    answer = call_pi_lab_ai(api_messages)
+                    st.markdown(answer)
+                    st.session_state.pi_lab_ai_messages.append(
+                        {"role": "assistant", "content": answer}
+                    )
+                except Exception as e:
+                    st.error(str(e))
+
+    if st.session_state.pi_lab_ai_messages:
+        if st.button("Clear AI conversation"):
+            st.session_state.pi_lab_ai_messages = []
+            st.rerun(
+        
+
+# -----------------------------
 # LOGIN
 # -----------------------------
 def verify_login(username, password):
