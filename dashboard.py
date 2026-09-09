@@ -342,11 +342,20 @@ EXPLABS_BASE_URL = "https://api.experientiallabs.ai/v1"
 EXPLABS_DEFAULT_MODEL = "gpt-6-astra"
 
 def get_experiential_api_key():
-    """Read the gateway key from Streamlit Secrets without exposing it."""
-    try:
-        return st.secrets["EXPLABS_API_KEY"]
-    except Exception:
+    """Read the Experiential Labs key from Streamlit Secrets."""
+    if "EXPLABS_API_KEY" not in st.secrets:
         return None
+
+key = st.secrets["EXPLABS_API_KEY"]
+
+if key is None:
+    return None
+key = str(key).strip()
+
+if not key:
+    return None
+
+return key
 
 def call_pi_lab_ai(messages, model=None, max_tokens=1200):
     """
