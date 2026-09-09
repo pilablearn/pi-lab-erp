@@ -346,16 +346,17 @@ def get_experiential_api_key():
     if "EXPLABS_API_KEY" not in st.secrets:
         return None
 
-key = st.secrets["EXPLABS_API_KEY"]
+    key = st.secrets["EXPLABS_API_KEY"]
 
-if key is None:
-    return None
-key = str(key).strip()
+    if key is None:
+        return None
+    
+    key = str(key).strip()
 
-if not key:
-    return None
+    if not key:
+        return None
 
-return key
+    return key
 
 def call_pi_lab_ai(messages, model=None, max_tokens=1200):
     """
