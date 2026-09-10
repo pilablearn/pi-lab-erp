@@ -525,7 +525,7 @@ st.sidebar.image("logo.png", width=140)
 if not st.session_state.logged_in:
     menu = st.sidebar.radio(
         "Menu",
-        ["Home", "About Us", "Courses", "AI Program", "Contact", "Login"]
+        ["Home", "About Us", "Courses", "Pi Lab AI Tutor", "Contact", "Login"]
     )
 else:
     role = str(st.session_state.user_role).strip().lower()
@@ -654,7 +654,7 @@ elif menu == "Courses":
         st.info("💻 CBSE\n\nMaths\nScience")
         
 #AI Program
-elif menu == "AI Program":
+elif menu == "Pi Lab AI Tutor":
     render_pi_lab_ai_tutor()
 
 #Contact
