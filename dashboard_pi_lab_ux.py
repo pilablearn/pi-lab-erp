@@ -1,0 +1,1622 @@
+import streamlit as st
+import pandas as pd
+import plotly.express as px
+import gspread
+import builtins
+import io
+import json
+import urllib.parse
+import urllib.request
+import urllib.error
+
+from reportlab.platypus import (
+    SimpleDocTemplate,
+    Paragraph,
+    Spacer,
+    Table,
+    Image
+)
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib.pagesizes import A4
+st.markdown("""
+<style>
+/* =========================
+   PI LAB DESIGN SYSTEM
+   ========================= */
+:root {
+    --pi-navy: #0B3D91;
+    --pi-blue: #1769D1;
+    --pi-light: #EAF2FF;
+    --pi-text: #1E2A44;
+    --pi-muted: #64748B;
+    --pi-white: #FFFFFF;
+}
+
+.stApp {
+    background: var(--pi-light);
+}
+
+[data-testid="stHeader"] {
+    background: rgba(255,255,255,0.96);
+    border-bottom: 1px solid #E7EEF8;
+}
+
+section[data-testid="stSidebar"] {
+    background: linear-gradient(180deg, #0B3D91 0%, #123D7A 100%);
+}
+
+section[data-testid="stSidebar"] > div {
+    padding-top: 1.2rem;
+}
+
+section[data-testid="stSidebar"] * {
+    color: white !important;
+}
+
+/* Sidebar radio navigation */
+section[data-testid="stSidebar"] div[role="radiogroup"] {
+    gap: 6px;
+}
+
+section[data-testid="stSidebar"] div[role="radiogroup"] label {
+    border-radius: 10px;
+    padding: 8px 10px;
+    transition: 0.2s ease;
+}
+
+section[data-testid="stSidebar"] div[role="radiogroup"] label:hover {
+    background: rgba(255,255,255,0.10);
+}
+
+section[data-testid="stSidebar"] div[role="radiogroup"] label[data-checked="true"] {
+    background: linear-gradient(90deg, rgba(66,153,225,.42), rgba(255,255,255,.12));
+}
+
+/* Hide Streamlit's default page title spacing */
+.block-container {
+    padding-top: 2rem;
+    padding-bottom: 2rem;
+    max-width: 1500px;
+}
+
+/* Buttons */
+.stButton > button,
+.stLinkButton > a {
+    border-radius: 10px !important;
+    font-weight: 700 !important;
+    border: 0 !important;
+    min-height: 42px;
+}
+
+.stButton > button[kind="primary"] {
+    background: var(--pi-navy) !important;
+    color: white !important;
+}
+
+/* Inputs */
+.stTextInput input,
+.stNumberInput input,
+.stSelectbox div[data-baseweb="select"] > div {
+    border-radius: 10px !important;
+}
+
+/* Metric cards */
+.metric-card {
+    background: white;
+    padding: 20px;
+    border-radius: 16px;
+    box-shadow: 0 4px 16px rgba(15, 35, 70, 0.07);
+    margin-bottom: 20px;
+    border: 1px solid #E8EEF7;
+}
+
+.big-number {
+    font-size: 40px;
+    font-weight: 800;
+    color: #111827;
+}
+
+.label {
+    color: #6B7280;
+    font-size: 16px;
+}
+
+/* =========================
+   ABOUT PAGE
+   ========================= */
+.about-kicker {
+    color: #173E85;
+    font-size: 15px;
+    font-weight: 800;
+    letter-spacing: 1.4px;
+    text-transform: uppercase;
+    margin-bottom: 8px;
+}
+
+.about-kicker-line {
+    width: 68px;
+    height: 4px;
+    background: #1769D1;
+    border-radius: 5px;
+    margin: 0 0 20px 0;
+}
+
+.about-title {
+    color: #0B3D91;
+    font-size: clamp(42px, 5vw, 68px);
+    line-height: 1.02;
+    font-weight: 850;
+    margin: 0;
+}
+
+.about-tagline {
+    color: #334155;
+    font-size: 22px;
+    letter-spacing: 5px;
+    margin: 12px 0 20px;
+    font-weight: 600;
+}
+
+.about-copy {
+    color: #334155;
+    font-size: 17px;
+    line-height: 1.65;
+    max-width: 680px;
+}
+
+.about-board {
+    color: #173E85;
+    font-size: 16px;
+    font-weight: 700;
+    margin-top: 18px;
+}
+
+.about-hero {
+    background: linear-gradient(135deg, #F4F8FF 0%, #DDEBFF 100%);
+    border-radius: 24px;
+    padding: 34px 38px;
+    border: 1px solid #D7E6FB;
+    box-shadow: 0 10px 30px rgba(15, 61, 120, .08);
+    margin-bottom: 24px;
+}
+
+.about-visual {
+    min-height: 350px;
+    border-radius: 22px;
+    background:
+        radial-gradient(circle at 70% 25%, rgba(255,255,255,.95) 0 8%, transparent 9%),
+        radial-gradient(circle at 48% 42%, rgba(255,255,255,.75) 0 13%, transparent 14%),
+        linear-gradient(145deg, #D8E9FF, #B9D5F7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    position: relative;
+}
+
+.about-visual-inner {
+    text-align: center;
+    color: #0B3D91;
+    padding: 25px;
+}
+
+.about-visual-icon {
+    font-size: 78px;
+    margin-bottom: 12px;
+}
+
+.about-visual-title {
+    font-size: 23px;
+    font-weight: 800;
+}
+
+.about-visual-sub {
+    font-size: 15px;
+    color: #45658F;
+    margin-top: 8px;
+}
+
+.value-card {
+    min-height: 180px;
+    padding: 25px 22px;
+    border-radius: 17px;
+    border: 1px solid rgba(15,61,120,.06);
+    box-shadow: 0 5px 18px rgba(15,35,70,.06);
+    text-align: center;
+}
+
+.value-icon {
+    width: 58px;
+    height: 58px;
+    margin: 0 auto 14px;
+    border-radius: 50%;
+    background: rgba(255,255,255,.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 28px;
+}
+
+.value-title {
+    color: #0B3D91;
+    font-size: 17px;
+    font-weight: 800;
+    margin-bottom: 7px;
+}
+
+.value-text {
+    color: #475569;
+    font-size: 14px;
+    line-height: 1.45;
+}
+
+.mission-card {
+    margin-top: 20px;
+    padding: 28px 34px;
+    border-radius: 18px;
+    background: linear-gradient(110deg, #DCEBFF, #EEF6FF);
+    border: 1px solid #CFE0F7;
+}
+
+.mission-title {
+    color: #0B3D91;
+    font-size: 24px;
+    font-weight: 850;
+}
+
+.mission-text {
+    color: #334155;
+    font-size: 17px;
+}
+
+.mission-quote {
+    color: #334155;
+    font-size: 18px;
+    font-style: italic;
+    font-weight: 600;
+    border-left: 2px solid #76A9E8;
+    padding-left: 24px;
+}
+
+/* Mobile */
+@media (max-width: 900px) {
+    .about-hero {
+        padding: 25px;
+    }
+    .about-visual {
+        min-height: 230px;
+        margin-top: 20px;
+    }
+    .about-title {
+        font-size: 46px;
+    }
+    .about-tagline {
+        font-size: 17px;
+        letter-spacing: 3px;
+    }
+}
+</style>
+""", unsafe_allow_html=True)
+
+from datetime import datetime
+from google.oauth2 import service_account
+from reportlab.lib.pagesizes import letter
+from reportlab.platypus import SimpleDocTemplate, Paragraph, Spacer, Table, TableStyle
+from reportlab.lib.styles import getSampleStyleSheet
+from reportlab.lib import colors
+
+# -----------------------------
+# PAGE CONFIG
+# -----------------------------
+st.set_page_config(
+    page_title="Pi Lab Learning ERP",
+    page_icon="⚡",
+    layout="wide"
+)
+
+# -----------------------------
+# SESSION STATE
+# -----------------------------
+if "logged_in" not in st.session_state:
+    st.session_state.logged_in = False
+    st.session_state.user_role = None
+
+# -----------------------------
+# GOOGLE SHEETS
+# -----------------------------
+@st.cache_resource
+def get_spreadsheet():
+    try:
+        if hasattr(builtins, "spreadsheet"):
+            return builtins.spreadsheet
+
+        creds = service_account.Credentials.from_service_account_info(
+            st.secrets["gcp_service_account"],
+            scopes=[
+                "https://www.googleapis.com/auth/spreadsheets",
+                "https://www.googleapis.com/auth/drive"
+            ]
+        )
+
+        gc = gspread.authorize(creds)
+
+        builtins.spreadsheet = gc.open_by_key(
+            "15azhC-cUcVpQbiPiMmlab8RxwM3zfUVdaq4NqNXM9ok"
+        )
+
+        return builtins.spreadsheet
+
+    except Exception as e:
+        st.error(f"Sheet Connection Error: {str(e)}")
+        st.stop()
+
+def get_sheet(sheet_name):
+    spreadsheet = get_spreadsheet()
+
+    try:
+        return spreadsheet.worksheet(sheet_name)
+    except Exception as e:
+        st.error(f"Sheet not found: {sheet_name}")
+        st.stop()
+    
+# -----------------------------
+# ENSURE RECEIPTS SHEET
+# -----------------------------
+def ensure_receipts_sheet():
+    spreadsheet = get_spreadsheet()
+
+    try:
+        ws = spreadsheet.worksheet("Receipts")
+        return ws
+    except Exception:
+        ws = spreadsheet.add_worksheet(
+            title="Receipts",
+            rows=1000,
+            cols=20
+        )
+        
+        ws.append_row([
+            "Receipt No",
+            "Date",
+            "Student ID",
+            "Student Name",
+            "Fee Month",
+            "Amount Paid",
+            "Payment Mode"
+        ])
+        return ws
+def create_whatsapp_link(
+    parent_mobile,
+    student_name,
+    payment_month,
+    amount_paid,
+    receipt_no
+):
+    message = f"""
+Dear Parent,
+
+We have received the fee payment successfully.
+
+Student: {student_name}
+Fee Month: {payment_month}
+Amount Paid: ₹{amount_paid}
+Receipt No: {receipt_no}
+
+Please find the receipt attached.
+
+Regards,
+Pi Lab Learning
+8123417618
+"""
+
+    encoded = urllib.parse.quote(message)
+    return f"https://wa.me/{parent_mobile}?text={encoded}"
+
+def generate_receipt_pdf(
+    receipt_no,
+    payment_date,
+    student_id,
+    student_name,
+    payment_month,
+    amount_paid,
+    payment_mode
+):
+    filename = f"{student_name}_{payment_month}_{receipt_no}.pdf"
+
+    doc = SimpleDocTemplate(filename, pagesize=A4)
+    styles = getSampleStyleSheet()
+    story = []
+
+    logo_path = "logo.png"
+
+    try:
+        logo = Image(logo_path, width=80, height=80)
+        story.append(logo)
+        story.append(Spacer(1, 10))
+    except:
+        pass
+
+     # Heading
+    story.append(Paragraph("PI LAB LEARNING", styles["Title"]))
+    story.append(Spacer(1, 15))
+    story.append(Paragraph("PAYMENT RECEIPT", styles["Heading1"]))
+    story.append(Spacer(1, 20))
+
+    # Receipt data table
+    data = [
+        ["Receipt No", receipt_no],
+        ["Payment Date", str(payment_date)],
+        ["Student ID", student_id],
+        ["Student Name", student_name],
+        ["Fee Month", payment_month],
+        ["Amount Paid", f"Rs. {amount_paid}"],
+        ["Payment Mode", payment_mode]
+    ]
+    
+    table = Table(data, colWidths=[150, 250])
+    story.append(table)
+
+    story.append(Spacer(1, 30))
+    story.append(Paragraph("Thank you for your payment.", styles["Normal"]))
+    story.append(Spacer(1, 20))
+    story.append(Paragraph("Pi Lab Learning", styles["Normal"]))
+
+    doc.build(story)
+
+    return filename
+# -----------------------------
+# LOAD DATA
+# -----------------------------
+@st.cache_data(ttl=15)
+def load_data():
+    student_ws = get_sheet("Student Master")
+    fee_ws = get_sheet("Fee Tracker")
+    marks_ws = get_sheet("Marks")
+
+    student_rows = student_ws.get_all_values()
+    fee_rows = fee_ws.get_all_values()
+    marks_rows = marks_ws.get_all_values()
+
+    student_df = (
+        pd.DataFrame(student_rows[1:], columns=student_rows[0])
+        if len(student_rows) > 1 else pd.DataFrame()
+    )
+
+    fee_df = (
+        pd.DataFrame(fee_rows[1:], columns=fee_rows[0])
+        if len(fee_rows) > 1 else pd.DataFrame()
+    )
+
+    marks_df = (
+        pd.DataFrame(marks_rows[1:], columns=marks_rows[0])
+        if len(marks_rows) > 1 else pd.DataFrame()
+    )
+
+    if not fee_df.empty:
+        if "Monthly Fee" in fee_df.columns:
+            fee_df["Monthly Fee"] = pd.to_numeric(
+                fee_df["Monthly Fee"],
+                errors="coerce"
+            ).fillna(0)
+
+        if "Outstanding Amount" in fee_df.columns:
+            fee_df["Outstanding Amount"] = pd.to_numeric(
+                fee_df["Outstanding Amount"],
+                errors="coerce"
+            ).fillna(0)
+            
+    student_df.columns = student_df.columns.str.strip()
+    fee_df.columns = fee_df.columns.str.strip()
+    marks_df.columns = marks_df.columns.str.strip()
+    
+    return student_df, fee_df, marks_df
+    paid_display = paid_df[
+        ["Student ID", "Student Name", "Monthly Fee"]
+    ]
+
+def create_fee_reminder_link(
+    parent_mobile,
+    student_name,
+    month,
+    reminder_type
+):
+    if reminder_type == "polite":
+        message = f"""
+Dear Parent,
+
+This is a gentle reminder that the tuition fee for {student_name} for {month} is due on 5th of this month.
+
+Kindly make the payment on or before the due date.
+
+Regards,
+Pi Lab Learning
+8123417618
+"""
+    elif reminder_type == "due":
+        message = f"""
+Dear Parent,
+
+This is a reminder that the tuition fee for {student_name} for {month} is still pending.
+
+We kindly request you to complete the payment at the earliest.
+
+Regards,
+Pi Lab Learning
+8123417618
+"""
+    else:
+        message = f"""
+Dear Parent,
+
+This is an urgent reminder regarding the pending tuition fee for {student_name} for {month}.
+
+Kindly arrange to complete the pending payment at the earliest.
+
+Please ignore this message if payment has already been made.
+
+Regards,
+Pi Lab Learning
+8123417618
+"""
+
+    encoded = urllib.parse.quote(message)
+    return f"https://wa.me/{parent_mobile}?text={encoded}"
+
+# -----------------------------
+# PI LAB AI ASSISTANT
+# -----------------------------
+EXPLABS_BASE_URL = "https://api.experientiallabs.ai/v1"
+EXPLABS_DEFAULT_MODEL = "gpt-6-astra"
+
+def get_experiential_api_key():
+    """Read the Experiential Labs key from Streamlit Secrets."""
+    if "EXPLABS_API_KEY" not in st.secrets:
+        return None
+
+    key = st.secrets["EXPLABS_API_KEY"]
+
+    if key is None:
+        return None
+    
+    key = str(key).strip()
+
+    if not key:
+        return None
+
+    return key
+
+def call_pi_lab_ai(messages, model=None, max_tokens=1200):
+    """
+    Call Experiential Labs' OpenAI-compatible Chat Completions endpoint.
+    The API key is read only from Streamlit Secrets.
+    """
+    api_key = get_experiential_api_key()
+    if not api_key:
+        raise RuntimeError(
+            "EXPLABS_API_KEY is not configured in Streamlit Secrets."
+        )
+
+    payload = {
+        "model": model or EXPLABS_DEFAULT_MODEL,
+        "messages": messages,
+        "max_tokens": max_tokens,
+    }
+
+    request = urllib.request.Request(
+        f"{EXPLABS_BASE_URL}/chat/completions",
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Authorization": f"Bearer {api_key}",
+            "Content-Type": "application/json",
+        },
+        method="POST",
+    )
+
+    try:
+        with urllib.request.urlopen(request, timeout=90) as response:
+            data = json.loads(response.read().decode("utf-8"))
+        return data["choices"][0]["message"]["content"]
+    except urllib.error.HTTPError as e:
+        body = e.read().decode("utf-8", errors="replace")
+        raise RuntimeError(f"AI gateway error ({e.code}): {body[:1000]}")
+    except urllib.error.URLError as e:
+        raise RuntimeError(f"Could not reach AI gateway: {e.reason}")
+    except (KeyError, IndexError, json.JSONDecodeError) as e:
+        raise RuntimeError(f"Unexpected AI gateway response: {e}")
+
+def render_pi_lab_ai_tutor():
+    st.title("⚡ Pi Lab AI Tutor")
+    st.caption(
+        "AI-powered learning support for Mathematics, Physics, Chemistry, "
+        "Biology, English and Accountancy."
+    )
+
+    if not get_experiential_api_key():
+        st.warning(
+            "AI is not configured yet. Add EXPLABS_API_KEY to "
+            "Streamlit Cloud → Settings → Secrets, then restart the app."
+        )
+        st.code(
+            'EXPLABS_API_KEY = "xpl_326651b8f92e7f7d6ebb76ed5898697046ea5000"',
+            language="toml"
+        )
+        return
+
+    c1, c2 = st.columns(2)
+    with c1:
+        subject = st.selectbox(
+            "Subject",
+            [
+                "Mathematics",
+                "Physics",
+                "Chemistry",
+                "Biology",
+                "English",
+                "Accountancy",
+                "General",
+            ],
+        )
+    with c2:
+        level = st.selectbox(
+            "Student Level",
+            ["Foundation", "School", "SSLC / Class 10", "PUC / Class 11-12", "Advanced"],
+        )
+
+    if "pi_lab_ai_messages" not in st.session_state:
+        st.session_state.pi_lab_ai_messages = []
+
+    for message in st.session_state.pi_lab_ai_messages:
+        with st.chat_message(message["role"]):
+            st.markdown(message["content"])
+
+    prompt = st.chat_input(
+        "Ask Pi Lab AI a question..."
+    )
+
+    if prompt:
+        system_prompt = f"""
+You are Pi Lab AI Tutor, the academic assistant for Pi Lab Learning.
+
+Subject: {subject}
+Student level: {level}
+
+Teaching rules:
+- Explain concepts clearly and step-by-step.
+- Match the student's level.
+- Prefer simple language before introducing technical terminology.
+- For numerical problems, show the formula, substitution, calculation and final answer.
+- For science, distinguish definitions, laws, observations and equations.
+- For board-exam preparation, highlight key points and common mistakes.
+- Do not invent syllabus-specific facts when the student has not provided the syllabus.
+- If a question is ambiguous, state the assumption you are making.
+- Do not claim to have checked school records, marks, fees or attendance.
+- Keep answers useful for actual learning rather than merely giving the final answer.
+"""
+
+        api_messages = [{"role": "system", "content": system_prompt}]
+        api_messages.extend(st.session_state.pi_lab_ai_messages)
+        api_messages.append({"role": "user", "content": prompt})
+
+        st.session_state.pi_lab_ai_messages.append(
+            {"role": "user", "content": prompt}
+        )
+
+        with st.chat_message("assistant"):
+            with st.spinner("Pi Lab AI is thinking..."):
+                try:
+                    answer = call_pi_lab_ai(api_messages)
+                    st.markdown(answer)
+                    st.session_state.pi_lab_ai_messages.append(
+                        {"role": "assistant", "content": answer}
+                    )
+                except Exception as e:
+                    st.error(str(e))
+
+    if st.session_state.pi_lab_ai_messages:
+        if st.button("Clear AI conversation"):
+            st.session_state.pi_lab_ai_messages = []
+            st.rerun()
+        
+
+# -----------------------------
+# LOGIN
+# -----------------------------
+def verify_login(username, password):
+    cred_ws = get_sheet("Credentials")
+    rows = cred_ws.get_all_values()
+
+    if len(rows) < 2:
+        return False, None
+
+    headers = rows[0]
+    df = pd.DataFrame(rows[1:], columns=headers)
+
+    match = df[
+        (df["Username"] == username) &
+        (df["Password"] == password)
+    ]
+
+    if not match.empty:
+        role = str(match.iloc[0]["Role"]).strip()
+        return True, role
+
+# -----------------------------
+# SIDEBAR
+# -----------------------------
+st.sidebar.title("PI LAB ERP")
+st.sidebar.image("logo.png", width=140)
+
+if not st.session_state.logged_in:
+    menu = st.sidebar.radio(
+        "Menu",
+        ["Home", "About Us", "Courses", "Pi Lab AI Tutor", "Contact", "Login"]
+    )
+else:
+    role = str(st.session_state.user_role).strip().lower()
+    
+    if "admin" in role:
+        erp_menu = [
+            "Admin Dashboard",
+            "Students",
+            "Fees",
+            "Attendance",
+            "Academics"
+        ]
+    else:
+        erp_menu = [
+            "Attendance",
+            "Academics"
+        ]
+        
+    menu = st.sidebar.radio("ERP Menu", erp_menu)
+    
+if st.session_state.logged_in:
+    if st.sidebar.button("Logout"):
+        st.session_state.logged_in = False
+        st.rerun()
+                
+    student_df, fee_df, marks_df = load_data()   
+else:
+    student_df, fee_df, marks_df = None, None, None
+
+if (not st.session_state.logged_in) and menu == "Login":
+    st.title("Admin Login")
+
+    username = st.text_input("Username")
+    password = st.text_input("Password", type="password")
+
+    if st.button("Login"):
+        ok, role = verify_login(username, password)
+
+        if ok:
+            st.write("Logged role:", role)
+            st.session_state.logged_in = True
+            st.session_state.user_role = role
+            st.rerun()
+        else:
+            st.error("Invalid username or password")
+            
+# -----------------------------
+# HOME PAGE
+# -----------------------------
+elif menu == "Home":
+    st.markdown("""
+    <h1 style='text-align:center;
+    font-size:64px;
+    font-weight:800;
+    margin-bottom:0;'>
+
+    <span style='color:#E53935;'>PI LAB</span>
+    <span style='color:#0B3D91;'> LEARNING</span>
+
+    </h1>
+    """, unsafe_allow_html=True)
+                
+    st.markdown("""
+    <h3 style='text-align:center;
+    color:#1E2A44;
+    font-size:30px;
+    font-weight:600;
+    margin-top:5px;'>
+    Learn Today, Lead Tomorrow
+    </h3>
+    """, unsafe_allow_html=True)
+
+    # HERO SECTION
+    st.image("homepage_full.png", use_container_width=True)
+
+    st.markdown("## Our Courses")
+    
+    c1, c2, c3, c4 = st.columns(4)
+    
+    with c1:
+        st.info("📘 PUC\n\n• Maths\n• Physics\n• Accountancy")
+
+    with c2:
+        st.info("🎓 ICSE 10th\n\n• Maths\n• Physics")
+
+    with c3:
+        st.info("🏫 State Board\n\n• All Subjects")
+
+    with c4:
+        st.info("💻 CBSE\n\n• Maths\n• Science")
+        
+# About Us
+elif menu == "About Us":
+    st.markdown("""
+    <div class="about-hero">
+        <div class="about-kicker">About Us</div>
+        <div class="about-kicker-line"></div>
+        <div class="about-title">Pi Lab Learning</div>
+        <div class="about-tagline">Learn &nbsp; • &nbsp; Grow &nbsp; • &nbsp; Achieve</div>
+        <div class="about-copy">
+            Pi Lab Learning is a concept-based coaching center in Bangalore focused on
+            building strong fundamentals in Mathematics, Science, Physics, Accountancy
+            and AI-oriented learning.
+        </div>
+        <div class="about-board">
+            CBSE &nbsp; • &nbsp; ICSE &nbsp; • &nbsp; State Board &nbsp; • &nbsp; PUC
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    hero_left, hero_right = st.columns([1.08, 0.92], gap="large")
+
+    with hero_left:
+        st.markdown("""
+        <div style="padding:18px 4px 10px 4px;">
+            <div class="about-copy" style="font-size:18px;">
+                Our approach is simple: understand the concept, practise it,
+                build confidence, and apply it to real academic and career goals.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+        if st.button("Our Courses  →", key="about_courses", type="primary"):
+            st.session_state["about_course_jump"] = True
+            st.rerun()
+
+    with hero_right:
+        st.markdown("""
+        <div class="about-visual">
+            <div class="about-visual-inner">
+                <div class="about-visual-icon">🎓 📚 💡</div>
+                <div class="about-visual-title">Better Learners</div>
+                <div class="about-visual-sub">
+                    Strong concepts • Confident students • Brighter futures
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    if st.session_state.pop("about_course_jump", False):
+        st.info("Use the Courses option in the sidebar to explore Pi Lab programmes.")
+
+    st.markdown("<div style='height:8px'></div>", unsafe_allow_html=True)
+
+    v1, v2, v3, v4 = st.columns(4, gap="medium")
+
+    cards = [
+        ("🎓", "Concept-Based Learning",
+         "Strong fundamentals for long-term academic success.", "#EDF4FF"),
+        ("👥", "Expert Guidance",
+         "Experienced and passionate faculty focused on student growth.", "#FFF0F2"),
+        ("📈", "Holistic Development",
+         "Academics, analytical skills and real-world readiness.", "#EAF9F4"),
+        ("💡", "Future-Ready Skills",
+         "AI-oriented and career-focused learning for tomorrow.", "#FFF7E7"),
+    ]
+
+    for col, (icon, title, desc, bg) in zip([v1, v2, v3, v4], cards):
+        with col:
+            st.markdown(f"""
+            <div class="value-card" style="background:{bg};">
+                <div class="value-icon">{icon}</div>
+                <div class="value-title">{title}</div>
+                <div class="value-text">{desc}</div>
+            </div>
+            """, unsafe_allow_html=True)
+
+    st.markdown("""
+    <div class="mission-card">
+        <div style="display:flex; align-items:center; gap:28px; flex-wrap:wrap;">
+            <div style="font-size:58px;">🎯</div>
+            <div style="flex:1; min-width:280px;">
+                <div class="mission-title">Our Mission</div>
+                <div class="mission-text">
+                    To build concepts, confidence, and future careers.
+                </div>
+            </div>
+            <div style="flex:1; min-width:280px;">
+                <div class="mission-quote">
+                    “Empowering students today for a brighter tomorrow.”
+                </div>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+#Courses page
+elif menu == "Courses":
+    st.title("Our Courses")
+
+    c1, c2, c3, c4 = st.columns(4)
+
+    with c1:
+        st.info("📘 PUC\n\nMaths\nPhysics\nAccountancy")
+
+    with c2:
+        st.info("🎓 ICSE 10th\n\nMaths\nPhysics")
+
+    with c3:
+        st.info("🏫 State Board\n\nAll Subjects")
+
+    with c4:
+        st.info("💻 CBSE\n\nMaths\nScience")
+        
+#AI Program
+elif menu == "Pi Lab AI Tutor":
+    render_pi_lab_ai_tutor()
+
+#Contact
+elif menu == "Contact":
+    st.title("Contact Us")
+
+    st.write("📞 8123417618")
+    st.write("📍 Near NPS Silk Board, Begur Road, Bangalore")
+    st.write("💻 Hybrid Classes Available — Online & Offline")
+    
+# -----------------------------
+# DASHBOARD
+# -----------------------------
+elif menu == "Admin Dashboard":
+    st.markdown("<h1 style='font-size:48px;'>Dashboard</h1>", unsafe_allow_html=True)
+    st.markdown("<br>", unsafe_allow_html=True)
+    
+    chart_df = pd.DataFrame({
+        "Month": ["Jun", "Jul", "Aug", "Sep"],
+        "Collection": [39000, 49000, 52000, 47000]
+    })
+
+    fig = px.bar(
+        chart_df,
+        x="Month",
+        y="Collection",
+        title="Monthly Fee Collection"
+    )
+
+    st.plotly_chart(fig, use_container_width=True)
+    
+    def metric_card(title, value):
+        st.markdown(f"""
+        <div class="metric-card">
+            <div class="label">{title}</div>
+            <div class="big-number">{value}</div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    c1,c2,c3 = st.columns(3)
+
+    total_students = len(student_df)
+
+    active_students = total_students
+    if "Status" in student_df.columns:
+        active_students = len(
+            student_df[
+                student_df["Status"]
+                .astype(str)
+                .str.strip()
+                .str.lower() == "active"
+            ]
+        )
+    outstanding = 0
+    if "Outstanding Amount" in fee_df.columns:
+        outstanding = fee_df["Outstanding Amount"].sum()
+    
+    with c1:
+        metric_card("🎓 Total Students", total_students)
+    
+    with c2:
+        metric_card("👨‍🎓 Active Students", active_students)
+    
+    with c3:
+        metric_card("💰 Outstanding", f"₹{outstanding:,.0f}")
+# -----------------------------
+# STUDENTS MODULE
+# -----------------------------
+elif menu == "Students":
+    action = st.selectbox(
+        "Action",
+        ["View Students", "New Admission"]
+    )
+
+    if action == "View Students":
+        st.dataframe(student_df, use_container_width=True)
+
+    else:
+        st.subheader("New Admission")
+
+        admission_date = st.date_input("Admission Date")
+        student_name = st.text_input("Student Name")
+        parent_name = st.text_input("Parent Name")
+        whatsapp1 = st.text_input("Parent WhatsApp")
+        whatsapp2 = st.text_input("WhatsApp 2")
+
+        grade = st.selectbox(
+            "Grade",
+            ["G5","G6","G7","G8","G9","G10","G11","G12"]
+        )
+
+        board = st.selectbox(
+            "Board",
+            ["ICSE","CBSE","State Board"]
+        )
+
+        school = st.text_input("School Name")
+        course = st.text_input("Course Enrolled")
+        monthly_fee = st.number_input("Monthly Fee", min_value=0)
+
+        if st.button("Submit Admission"):
+            student_ws = get_sheet("Student Master")
+            fee_ws = get_sheet("Fee Tracker")
+
+            rows = student_ws.get_all_values()
+
+            nums = []
+            for r in rows[1:]:
+                if r and r[0].startswith("PL"):
+                    try:
+                        nums.append(int(r[0].replace("PL", "")))
+                    except:
+                        pass
+
+            new_num = max(nums) + 1 if nums else 1
+            student_id = f"PL{new_num:05d}"
+
+            student_ws.append_row([
+                student_id,
+                str(admission_date),
+                student_name,
+                parent_name,
+                whatsapp1,
+                whatsapp2,
+                grade,
+                board,
+                school,
+                course,
+                monthly_fee,
+                "Active",
+                ""
+            ])
+
+            fee_ws.append_row([
+                student_id,
+                student_name,
+                monthly_fee,
+                "", "", "", "", "", "", "",
+                "", "", "", "", "", "", "",
+                "", "", "", "", "", 0
+            ])
+
+            st.success(f"Admission Added: {student_id}")
+            st.cache_data.clear()
+            st.rerun()
+
+# -----------------------------
+# FEES MODULE
+# -----------------------------
+elif menu == "Fees":
+    action = st.selectbox(
+        "",
+        ["View Ledger", "Collect Fee"]
+    )
+    
+    student_df, fee_df, marks_df = load_data()
+
+    if action == "View Ledger":
+        
+        selected_month = st.selectbox(
+            "Reminder Month",
+            ["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"]
+        )
+        
+        reminder_type = st.selectbox(
+            "Reminder Type",
+            ["Polite","Due","Urgent"]
+        )
+
+        search = st.text_input(
+            "🔍 Search Student",
+            placeholder="Enter student name..."
+            )
+            
+        status = (
+            fee_df[selected_month]
+            .fillna("")
+            .astype(str)
+            .str.strip()
+            .str.lower()
+        )
+        
+        pending_df = fee_df.copy()
+        
+        if search:
+            
+            pending_df = pending_df[
+                pending_df["Student Name"]
+                .str.contains(search, case=False, na=False)
+            ]
+            
+        pending_df = pending_df[
+            pending_df[selected_month]
+            .fillna("")
+            .astype(str)
+            .str.lower()
+            == "pending"
+        ]
+        st.subheader(f"Pending Students - {selected_month}")
+        
+        for _, row in pending_df.iterrows():
+             
+            col1,col2,col3,col4,col5 = st.columns([3,2,2,2,2])
+             
+            with col1:
+                st.write(row["Student Name"])
+                 
+            with col2:
+                st.write(f"₹{row['Monthly Fee']}")
+                 
+            with col3:
+                st.error("Pending")
+                 
+            with col4:
+                 
+                student_row = student_df[
+                    student_df["Student Name"] == row["Student Name"]
+                ]
+                 
+                if not student_row.empty:
+                     
+                    if "Parent WhatsApp" in student_row.columns:
+                        mobile = str(student_row.iloc[0]["Parent WhatsApp"])
+                    else:
+                        mobile = str(student_row.iloc[0]["Parent WhatsApp"])
+                         
+                    mobile = (
+                        mobile.replace(".0","")
+                        .replace("+","")
+                        .replace(" ","")
+                    )
+                    if len(mobile)==10:
+                        mobile="91"+mobile
+                          
+                    link = create_fee_reminder_link(
+                        mobile,
+                        row["Student Name"],
+                        selected_month,
+                        reminder_type.lower()
+                    )
+                    st.link_button(
+                        "📲 Reminder",
+                        link
+                    )
+                     
+            with col5:
+                st.write("-")
+                    
+        st.divider()
+        
+        paid_df = fee_df[
+            fee_df[selected_month]
+            .fillna("")
+            .astype(str)
+            .str.lower()
+            == "paid"
+        ]
+        
+        st.subheader("🟢 Paid Students")
+        
+        paid_display = paid_df[
+            ["Student ID", "Student Name", "Monthly Fee"]
+        ]
+        
+        st.dataframe(
+            paid_display,
+            use_container_width=True
+        )
+        
+        csv = pending_df.to_csv(index=False)
+        
+        st.download_button(
+            "⬇ Download Pending List",
+            csv,
+            file_name=f"{selected_month}_Pending.csv",
+            mime="text/csv"
+        )
+              
+    else:
+        active_students = []
+
+        if not student_df.empty:
+            active_students = student_df[
+                student_df["Status"] == "Active"
+            ]["Student Name"].tolist()
+
+        student_name = st.selectbox(
+            
+            "Student",
+            sorted(active_students)
+        )
+
+        payment_month = st.selectbox(
+            "Fee Month",
+            ["Jun","Jul","Aug","Sep","Oct","Nov","Dec","Jan","Feb","Mar"]
+        )
+
+        amount_paid = st.number_input(
+            "Amount Paid",
+            min_value=0
+        )
+
+        payment_mode = st.selectbox(
+            "Payment Mode",
+            ["Cash", "UPI", "Bank Transfer"]
+        )
+
+        payment_date = st.date_input("Payment Date")
+
+        if st.button("Submit Payment"):
+            fee_ws = get_sheet("Fee Tracker")
+            receipt_ws = get_sheet("Receipts")
+
+            rows = fee_ws.get_all_values()
+            headers = rows[0]
+
+            month_col = headers.index(payment_month) + 1
+            date_col = headers.index(f"{payment_month} Date") + 1
+
+            target_row = None
+            student_id = ""
+
+            for i, row in enumerate(rows[1:], start=2):
+                if len(row) > 1 and row[1] == student_name:
+                    target_row = i
+                    student_id = row[0]
+                    break
+
+            if target_row:
+                fee_ws.update_cell(target_row, month_col, "Paid")
+                fee_ws.update_cell(
+                    target_row,
+                    date_col,
+                    str(payment_date)
+                )
+
+                receipt_rows = receipt_ws.get_all_values()
+                receipt_no = f"RCP-{datetime.now().year}-{len(receipt_rows):05d}"
+
+                receipt_ws.append_row([
+                    receipt_no,
+                    str(payment_date),
+                    student_id,
+                    student_name,
+                    payment_month,
+                    amount_paid,
+                    payment_mode
+                ])
+
+                st.success(f"Payment Recorded | Receipt {receipt_no}")
+
+                pdf_file = generate_receipt_pdf(
+                    receipt_no,
+                    payment_date,
+                    student_id,
+                    student_name,
+                    payment_month,
+                    amount_paid,
+                    payment_mode
+                )
+                    
+                with open(pdf_file, "rb") as file:
+                    st.download_button(
+                        label="Download Receipt PDF",
+                        data=file,
+                        file_name=pdf_file,
+                        mime="application/pdf"
+                    )
+                    
+                student_row = student_df[
+                    student_df["Student Name"] == student_name
+                ]
+                
+                parent_mobile = str(
+                    student_row.iloc[0]["Parent WhatsApp"]
+                ).strip()
+                
+                parent_mobile = (
+                    parent_mobile
+                    .replace(".0", "")
+                    .replace("+", "")
+                    .replace(" ", "")
+                )
+                    
+                if len(parent_mobile) == 10:
+                        parent_mobile = "91" + parent_mobile
+                                  
+                wa_link = create_whatsapp_link(
+                    parent_mobile,
+                    student_name,
+                    payment_month,
+                    amount_paid,
+                    receipt_no
+                )
+                       
+                st.link_button(
+                    "Send Receipt via WhatsApp",
+                    wa_link
+                )
+                if st.button("Refresh Page"):
+                    st.cache_data.clear()
+                    st.rerun()
+
+# -----------------------------
+# ATTENDANCE MODULE
+# -----------------------------
+elif menu == "Attendance":
+    st.title("Attendance")
+    
+    attendance_ws = get_sheet("Attendance")
+    today_str = datetime.now().strftime("%Y-%m-%d")
+
+# Active students from Student Master
+    active_students_df = student_df[
+        student_df["Status"].astype(str).str.strip() == "Active"
+    ][["Student ID", "Student Name", "Grade"]].copy()
+
+# Load attendance sheet
+    rows = attendance_ws.get_all_values()
+
+    if len(rows) <= 1:
+        attendance_df = active_students_df.copy()
+    else:
+        attendance_df = pd.DataFrame(rows[1:], columns=rows[0])
+
+# Remove duplicates
+    if not attendance_df.empty:
+        attendance_df = attendance_df.drop_duplicates(
+            subset=["Student ID"],
+            keep="last"
+        )
+
+# Sync new admissions
+    existing_ids = []
+    if not attendance_df.empty and "Student ID" in attendance_df.columns:
+        existing_ids = attendance_df["Student ID"].tolist()
+
+    for _, student in active_students_df.iterrows():
+        if student["Student ID"] not in existing_ids:
+            new_row = pd.DataFrame([{
+                "Student ID": student["Student ID"],
+                "Student Name": student["Student Name"],
+                "Grade": student["Grade"]
+            }])
+            attendance_df = pd.concat(
+                [attendance_df, new_row],
+                ignore_index=True
+             )
+
+# Create today column if missing
+    if today_str not in attendance_df.columns:
+        attendance_df[today_str] = "Absent"
+
+    selected_student = st.selectbox(
+        "Student",
+        sorted(attendance_df["Student Name"].tolist())
+    )
+
+    status = st.selectbox(
+        "Status",
+        ["Present", "Absent"]
+    )
+
+    if st.button("Mark Attendance"):
+        idx = attendance_df.index[
+            attendance_df["Student Name"] == selected_student
+        ][0]
+    
+        attendance_df.loc[idx, today_str] = status
+
+        attendance_ws.clear()
+        attendance_ws.update(
+            [attendance_df.columns.tolist()] +
+            attendance_df.values.tolist()
+        )
+
+        st.success("Attendance Updated")
+        st.rerun()
+
+    st.dataframe(attendance_df, use_container_width=True)
+
+# -----------------------------
+# ACADEMICS MODULE
+elif menu == "Academics":
+    action = st.selectbox(
+        "Action",
+        [
+            "Leaderboard",
+            "Enter Marks",
+            "Progress Report"
+        ]
+    )
+
+    if not marks_df.empty:
+        marks_df["Marks Obtained"] = pd.to_numeric(
+            marks_df["Marks Obtained"],
+            errors="coerce"
+        ).fillna(0)
+
+        marks_df["Total Marks"] = pd.to_numeric(
+            marks_df["Total Marks"],
+            errors="coerce"
+        ).fillna(100)
+
+        marks_df["Percentage"] = (
+            marks_df["Marks Obtained"] /
+            marks_df["Total Marks"]
+        ) * 100
+
+    # LEADERBOARD
+    if action == "Leaderboard":
+        if marks_df.empty:
+            st.warning("No marks data")
+        else:
+            leaderboard = marks_df.groupby(
+                "Student Name"
+            )["Percentage"].mean().reset_index()
+
+            leaderboard = leaderboard.sort_values(
+                by="Percentage",
+                ascending=False
+            )
+
+            st.dataframe(
+                leaderboard,
+                use_container_width=True
+            )
+
+    # ENTER MARKS
+    elif action == "Enter Marks":
+        active_students = []
+        if not student_df.empty:
+            active_students = student_df[
+                student_df["Status"].str.strip() == "Active"
+            ]["Student Name"].tolist()
+
+        selected_student = st.selectbox(
+            "Student",
+            sorted(active_students)
+        )
+
+        subject = st.selectbox(
+            "Subject",
+            ["Maths", "Science", "English", "Social", "Coding"]
+        )
+
+        test_name = st.text_input("Test Name")
+        marks_obtained = st.number_input(
+            "Marks Obtained",
+            min_value=0
+        )
+        total_marks = st.number_input(
+            "Total Marks",
+            min_value=1,
+            value=100
+        )
+
+        if st.button("Submit Marks"):
+            marks_ws = get_sheet("Marks")
+
+            student_row = student_df[
+                student_df["Student Name"] == selected_student
+            ].iloc[0]
+
+            student_id = student_row["Student ID"]
+
+            marks_ws.append_row([
+                str(datetime.now().date()),
+                student_id,
+                selected_student,
+                subject,
+                test_name,
+                marks_obtained,
+                total_marks
+            ])
+
+            st.success("Marks Added")
+            st.cache_data.clear()
+            st.rerun()
+
+    # PROGRESS REPORT
+    elif action == "Progress Report":
+        active_students = []
+        if not student_df.empty:
+            active_students = student_df[
+                student_df["Status"].str.strip() == "Active"
+            ]["Student Name"].tolist()
+
+        selected_student = st.selectbox(
+            "Student",
+            sorted(active_students)
+        )
+
+        if st.button("Generate PDF"):
+            student_marks = marks_df[
+                marks_df["Student Name"] == selected_student
+            ]
+
+            if student_marks.empty:
+                st.warning("No marks found")
+            else:
+                buffer = io.BytesIO()
+
+                doc = SimpleDocTemplate(
+                    buffer,
+                    pagesize=letter
+                )
+
+                styles = getSampleStyleSheet()
+                story = []
+
+                story.append(
+                    Paragraph(
+                        "PI LAB LEARNING",
+                        styles["Title"]
+                    )
+                )
+
+                story.append(Spacer(1, 20))
+
+                story.append(
+                    Paragraph(
+                        f"Progress Report: {selected_student}",
+                        styles["Heading2"]
+                    )
+                )
+
+                story.append(Spacer(1, 20))
+
+                table_data = [
+                    ["Subject", "Test", "Score", "Percent"]
+                ]
+
+                for _, row in student_marks.iterrows():
+                    percent = (
+                        row["Marks Obtained"] /
+                        row["Total Marks"]
+                    ) * 100
+
+                    table_data.append([
+                        row["Subject"],
+                        row["Test Name"],
+                        f"{int(row['Marks Obtained'])}/{int(row['Total Marks'])}",
+                        f"{percent:.1f}%"
+                    ])
+
+                report_table = Table(table_data)
+
+                report_table.setStyle(TableStyle([
+                    ("BACKGROUND", (0, 0), (-1, 0), colors.grey),
+                    ("TEXTCOLOR", (0, 0), (-1, 0), colors.white),
+                    ("GRID", (0, 0), (-1, -1), 1, colors.black)
+                ]))
+
+                story.append(report_table)
+                doc.build(story)
+
+                pdf_data = buffer.getvalue()
+
+                st.download_button(
+                    "Download PDF Report",
+                    pdf_data,
+                    file_name=f"{selected_student}_report.pdf",
+                    mime="application/pdf"
+                )
